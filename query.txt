@@ -1,0 +1,32 @@
+GET osh_data_acoustic_fast/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match_all": {}
+        },
+        {
+          "range": {
+            "timestamp": {
+              "gte": 1534769255000,
+              "lte": 1534769260000,
+              "format": "epoch_millis"
+            }
+          }
+        }
+      ],
+      "filter": [],
+      "should": [],
+      "must_not": []
+    }
+  },
+  "size": 1,
+  "sort": [
+    {
+      "timestamp": {
+        "order": "desc"
+      }
+    }
+  ]
+} 
