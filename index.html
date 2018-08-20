@@ -89,7 +89,7 @@
             }
           }
 
-          var colorScale = d3.scale.quantize().domain([30,40]).range(colors);
+          var colorScale = d3.scale.quantize().domain([30,80]).range(colors);
 
           var cards = svg.selectAll(".hour")
               .data(data, function(d) {return d.day+':'+d.hour;});
@@ -114,7 +114,7 @@
           cards.exit().remove();
 
           var legend = svg.selectAll(".legend")
-              .data([30,35,40,45,50,55,60,65,70,75,80], function(d) { return d; });
+              .data(d3.range(colors.length).map(d =>  d * Math.round((colorScale.domain()[1] - colorScale.domain()[0] ) / colors.length) + colorScale.domain()[0]));
 
           legend.enter().append("g")
               .attr("class", "legend");
