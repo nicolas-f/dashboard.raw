@@ -1,6 +1,7 @@
 GET osh_data_acoustic_fast/_search
 {
-  "query": {
+  "size": 0,
+    "query": {
     "bool": {
       "must": [
         {
@@ -21,12 +22,25 @@ GET osh_data_acoustic_fast/_search
       "must_not": []
     }
   },
-  "size": 1,
-  "sort": [
-    {
-      "timestamp": {
-        "order": "desc"
-      }
+    "aggs": {
+        "group": {
+            "terms": {
+                "field": "producerID"
+            },
+            "aggs": {
+                "group_docs": {
+                    "top_hits": {
+                        "size": 1,
+                        "sort": [
+                            {
+                                "timestamp": {
+                                    "order": "desc"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
     }
-  ]
-} 
+}
