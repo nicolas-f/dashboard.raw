@@ -84,14 +84,12 @@
               data.push({
                 day: + (t+1),
                 hour: + (freqIndex+1),
-                value: + (sensorData['leq_'+freqField][t])
+                value: + sensorData['leq_'+freqField][t]
               });
             }
           }
 
-          var colorScale = d3.scale.ordinal()
-              .domain([30,35,40,45,50,55,60,65,70,75,80])
-              .range(colors);
+          var colorScale = d3.scale.quantize().domain([30,40]).range(colors);
 
           var cards = svg.selectAll(".hour")
               .data(data, function(d) {return d.day+':'+d.hour;});
@@ -116,7 +114,7 @@
           cards.exit().remove();
 
           var legend = svg.selectAll(".legend")
-              .data([30,35,40,45,50,55,60,65,70,75,80]);
+              .data([30,35,40,45,50,55,60,65,70,75,80], function(d) { return d; });
 
           legend.enter().append("g")
               .attr("class", "legend");
