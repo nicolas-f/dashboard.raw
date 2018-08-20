@@ -69,10 +69,10 @@
 
       var heatmapChart = function(jsonFile) {
         d3.json(jsonFile,
-        function(d) {
-          var sensorId = d.aggregations.group.buckets[0].key;
-          var stepCount = d.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.leq.length;
-          var sensorData = d.aggregations.group.buckets[0].group_docs.hits.hits[0]._source;
+        function(jsonContent) {
+          var sensorId = jsonContent.aggregations.group.buckets[0].key;
+          var stepCount = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.leq.length;
+          var sensorData = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source;
           var data = [];
           var t, freqIndex;
           //for(t=0; t<stepCount; t++) {
@@ -88,9 +88,9 @@
               });
             }
           }
-                    
-          var colorScale = d3.scale.quantile()
-              .domain([0, buckets - 1, d3.max(data, function (d) { return d.value; })])
+
+          var colorScale = d3.scale.ordinal()
+              .domain([30,35,40,45,50,55,60,65,70,75,80])
               .range(colors);
 
           var cards = svg.selectAll(".hour")
@@ -116,7 +116,7 @@
           cards.exit().remove();
 
           var legend = svg.selectAll(".legend")
-              .data([0].concat(colorScale.quantiles()), function(d) { return d; });
+              .data([30,35,40,45,50,55,60,65,70,75,80]);
 
           legend.enter().append("g")
               .attr("class", "legend");
