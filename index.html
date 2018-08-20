@@ -73,9 +73,7 @@
           var sensorId = d.aggregations.group.buckets[0].key;
           var stepCount = d.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.leq.length;
           var sensorData = d.aggregations.group.buckets[0].group_docs.hits.hits[0]._source;
-          var timeColumn = [],
-          freqColumn = [],
-          valueColumn = [];
+          var data = [];
           var t, freqIndex;
           //for(t=0; t<stepCount; t++) {
           for(t=0; t<7; t++) {
@@ -83,18 +81,14 @@
             //for(freqIndex=0; freqIndex < fields.length; freqIndex++) {
             for(freqIndex=0; freqIndex < 24; freqIndex++) {
               freqField = fields[freqIndex];
-              timeColumn.push(t+1);
-              freqColumn.push(freqIndex+1);
-              valueColumn.push(Math.round(sensorData['leq_'+freqField][t]));
+              data.push({
+                day: + (t+1),
+                hour: + (freqIndex+1),
+                value: + (sensorData['leq_'+freqField][t])
+              });
             }
           }
-          return {
-            day: + timeColumn,
-            hour: + freqColumn,
-            value: + valueColumn
-          };
-        },
-        function(error, data) {
+                    
           var colorScale = d3.scale.quantile()
               .domain([0, buckets - 1, d3.max(data, function (d) { return d.value; })])
               .range(colors);
