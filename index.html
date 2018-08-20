@@ -29,17 +29,16 @@
     <div id="dataset-picker">
     </div>
     <script type="text/javascript">
-      var margin = { top: 50, right: 0, bottom: 100, left: 30 },
+      var margin = { top: 50, right: 0, bottom: 100, left: 80 },
+          fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31,25,20];
           width = 960 - margin.left - margin.right,
           height = 430 - margin.top - margin.bottom,
           gridSize = Math.floor(width / 24),
           legendElementWidth = gridSize*2,
-          buckets = 9,
           colors = ["#82A6AD","#A0BABF","#B8D6D1","#CEE4CC","#E2F2BF","#F3C683","#E87E4D","#CD463E","#A11A4D","#75085C","#430A4A"], // http://www.coloringnoise.com/theoretical_background/new-color-scheme/
-          days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+          days = fields.map(f => f+" Hz"),
           times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12a", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12p"];
           datasets = ["fast.json", "fast.json"];
-          fields = [20, 25, 31, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500];
 
       var svg = d3.select("#chart").append("svg")
           .attr("width", width + margin.left + margin.right)
