@@ -4,8 +4,8 @@
   <head>
     <style>
       rect.bordered {
-        stroke: #E6E6E6;
-        stroke-width:2px;
+        /*stroke: #E6E6E6;
+        stroke-width:2px;*/
       }
 
       text.mono {
@@ -86,7 +86,7 @@
             }
           }
 
-          var colorScale = d3.scaleQuantize().domain([35,85]).range(colors);
+          var colorScale = d3.scaleQuantize().domain([30,85]).range(colors);
 
           var cards = svg.selectAll(".hour")
               .data(data, function(d) {return d.day+':'+d.hour;});
@@ -105,7 +105,7 @@
           rect.append("title").text(function(d) { return d.value; });
 
           var legend = svg.selectAll(".legend")
-              .data(colorScale.ticks());
+              .data(colors.map(c => colorScale.invertExtent(c)));
 
           var legendgroup = legend.enter().append("g")
               .attr("class", "legend");
@@ -119,8 +119,8 @@
 
           legendgroup.append("text")
             .attr("class", "mono")
-            .text(function(d) { return "≥ " + Math.round(d); })
-            .attr("x", function(d, i) { return legendElementWidth * i; })
+            .text(function(d) { return Math.round(d[0]) + " - " + Math.round(d[1])})
+            .attr("x", function(d, i) { return legendElementWidth * i + 15; })
             .attr("y", height + (legendElementWidth / 4) + 15);
 
 
