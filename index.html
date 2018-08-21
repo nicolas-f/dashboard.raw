@@ -93,33 +93,31 @@
 
           cards.append("title");
 
-          cards.enter().append("rect")
-              .attr("x", function(d) { return (d.hour - 1) * gridSize; })
+          var rect = cards.enter().append("rect");
+
+          rect.attr("x", function(d) { return (d.hour - 1) * gridSize; })
               .attr("y", function(d) { return (d.day - 1) * gridSize; })
               .attr("class", "hour bordered")
               .attr("width", gridSize)
               .attr("height", gridSize)
               .style("fill", colors[0]).transition().duration(1000).style("fill", function(d) { return colorScale(d.value); })
 
-
-          cards.enter().select("title").merge(cards).text(function(d) { return d.value; });
-
-          //cards.exit().remove();
+          rect.append("title").text(function(d) { return d.value; });
 
           var legend = svg.selectAll(".legend")
               .data(colorScale.ticks());
 
-          legend.enter().append("g")
+          var legendgroup = legend.enter().append("g")
               .attr("class", "legend");
 
-          legend.append("rect")
+          legendgroup.append("rect")
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", height)
             .attr("width", legendElementWidth)
             .attr("height", legendElementWidth / 4)
             .style("fill", function(d, i) { return colors[i]; });
 
-          legend.append("text")
+          legendgroup.append("text")
             .attr("class", "mono")
             .text(function(d) { return "≥ " + Math.round(d); })
             .attr("x", function(d, i) { return legendElementWidth * i; })
