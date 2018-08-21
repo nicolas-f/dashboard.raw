@@ -8,6 +8,10 @@
         stroke-width:2px;*/
       }
 
+      .timediv {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
       text.mono {
         font-size: 9pt;
         font-family: Consolas, courier;
@@ -23,9 +27,17 @@
       }
     </style>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="moment.min.js"></script>
+    <script type="text/javascript" src="daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="daterangepicker.css" />
   </head>
   <body>
-  <div id="dataset-picker">
+  <div id="dataset-picker"></div>
+  <div class="timediv">
+  <input type="button" value="<<">
+    <input type="text" name="datetimes" />
+    <input type="button" value=">>">
   </div>
     <div id="chart"></div>
     <script type="text/javascript">
@@ -56,11 +68,66 @@
             .attr("class", "dayLabel mono axis axis-workweek");
 
       var downloadedData = {};
-
+      $('input[name="datetimes"]').daterangepicker({
+          "singleDatePicker": true,
+          "showISOWeekNumbers": true,
+          "timePicker": true,
+          "timePicker24Hour": true,
+          "timePickerSeconds": true,
+          "autoApply": true,
+          ranges: {
+              'Today': [moment(), moment()],
+              'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+              'This Month': [moment().startOf('month'), moment().endOf('month')],
+              'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+          },
+          "locale": {
+              "format": "MM/DD/YYYY HH:mm:ss",
+              "separator": " - ",
+              "applyLabel": "Apply",
+              "cancelLabel": "Cancel",
+              "fromLabel": "From",
+              "toLabel": "To",
+              "customRangeLabel": "Custom",
+              "weekLabel": "W",
+              "daysOfWeek": [
+                  "Su",
+                  "Mo",
+                  "Tu",
+                  "We",
+                  "Th",
+                  "Fr",
+                  "Sa"
+              ],
+              "monthNames": [
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December"
+              ],
+              "firstDay": 1
+          },
+          "startDate": moment().subtract(1, 'minutes'),
+          "endDate": moment()
+      }, function(start, end, label) {
+        console.log('New date range selected: ' + start.format('YYYY-MM-DD HH:mm:ss') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+      });
 
       function onchange() {
-        	selectValue = d3.select('#dataset-picker').property('value')
-        	loadSensor(downloadedData, selectValue);
+          if(downloadedData.length > 0) {
+          	selectValue = d3.select('#dataset-picker').property('value')
+          	loadSensor(downloadedData, selectValue);
+          }
         };
       function loadSensor(jsonContent, sensorId) {
           var sensors = jsonContent.aggregations.group.buckets.map( s => s.key)
