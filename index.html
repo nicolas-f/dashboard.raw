@@ -4,8 +4,8 @@
   <head>
     <style>
       rect.bordered {
-        /* stroke: #E6E6E6;
-        stroke-width:2px;  */
+        stroke: #E6E6E6;
+        stroke-width:2px;
       }
 
       text.mono {
@@ -22,7 +22,7 @@
         fill: #000;
       }
     </style>
-    <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
   </head>
   <body>
     <div id="chart"></div>
@@ -69,8 +69,7 @@
             */
 
       var heatmapChart = function(jsonFile) {
-        d3.json(jsonFile,
-        function(jsonContent) {
+        d3.json(jsonFile).then(function(jsonContent) {
           var sensorId = jsonContent.aggregations.group.buckets[0].key;
           var stepCount = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.leq.length;
           var sensorData = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source;
@@ -87,7 +86,7 @@
             }
           }
 
-          var colorScale = d3.scale.quantize().domain([35,85]).range(colors);
+          var colorScale = d3.scaleQuantize().domain([35,85]).range(colors);
 
           var cards = svg.selectAll(".hour")
               .data(data, function(d) {return d.day+':'+d.hour;});
@@ -97,22 +96,18 @@
           cards.enter().append("rect")
               .attr("x", function(d) { return (d.hour - 1) * gridSize; })
               .attr("y", function(d) { return (d.day - 1) * gridSize; })
-              //.attr("rx", 4)
-              //.attr("ry", 4)
               .attr("class", "hour bordered")
               .attr("width", gridSize)
               .attr("height", gridSize)
-              .style("fill", colors[0]);
+              .style("fill", colors[0]).transition().duration(1000).style("fill", function(d) { return colorScale(d.value); })
 
-          cards.transition().duration(1000)
-              .style("fill", function(d) { return colorScale(d.value); });
 
-          cards.select("title").text(function(d) { return d.value; });
+          cards.enter().select("title").merge(cards).text(function(d) { return d.value; });
 
-          cards.exit().remove();
+          //cards.exit().remove();
 
           var legend = svg.selectAll(".legend")
-              .data(d3.range(colors.length).map(d =>  d * Math.round((colorScale.domain()[1] - colorScale.domain()[0] ) / colors.length) + colorScale.domain()[0]));
+              .data(colorScale.ticks());
 
           legend.enter().append("g")
               .attr("class", "legend");
@@ -130,7 +125,6 @@
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", height + (legendElementWidth / 4) + 15);
 
-          legend.exit().remove();
 
         });
       };
