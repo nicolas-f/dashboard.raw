@@ -42,7 +42,7 @@
     <div id="chart"></div>
     <script type="text/javascript">
       var margin = { top: 50, right: 0, bottom: 100, left: 80 },
-          fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31,25,20,'leq', 'laeq'];
+          fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31.5,25,20,'leq', 'laeq'];
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom,
           gridSize = Math.floor(width / 80),
@@ -154,7 +154,7 @@
           var t, freqIndex;
           for(t=0; t<stepCount; t++) {
             for(freqIndex=0; freqIndex < fields.length; freqIndex++) {
-              freqField = fields[freqIndex];
+              freqField = Math.trunc(fields[freqIndex]);
               data.push({
                 day: + freqIndex < fields.length - 2 ? (fields.length - 2) - (freqIndex+1) : freqIndex,
                 hour: + (t+1),
