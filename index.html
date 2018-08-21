@@ -34,7 +34,7 @@
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom,
           gridSize = Math.floor(width / 80),
-          legendElementWidth = gridSize*4,
+          legendElementWidth = gridSize*8,
           colors = ["#82A6AD","#A0BABF","#B8D6D1","#CEE4CC","#E2F2BF","#F3C683","#E87E4D","#CD463E","#A11A4D","#75085C","#430A4A"], // http://www.coloringnoise.com/theoretical_background/new-color-scheme/
           days = fields.map(f => f+" Hz"),
           // times = d3.range(80).map(t => t * 250);
@@ -87,7 +87,7 @@
             }
           }
 
-          var colorScale = d3.scale.quantize().domain([30,80]).range(colors);
+          var colorScale = d3.scale.quantize().domain([35,85]).range(colors);
 
           var cards = svg.selectAll(".hour")
               .data(data, function(d) {return d.day+':'+d.hour;});
@@ -121,14 +121,14 @@
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", height)
             .attr("width", legendElementWidth)
-            .attr("height", gridSize / 2)
+            .attr("height", legendElementWidth / 4)
             .style("fill", function(d, i) { return colors[i]; });
 
           legend.append("text")
             .attr("class", "mono")
             .text(function(d) { return "≥ " + Math.round(d); })
             .attr("x", function(d, i) { return legendElementWidth * i; })
-            .attr("y", height + gridSize);
+            .attr("y", height + (legendElementWidth / 4) + 15);
 
           legend.exit().remove();
 
