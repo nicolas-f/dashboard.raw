@@ -25,20 +25,19 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
   </head>
   <body>
+  <div id="dataset-picker">
+  </div>
     <div id="chart"></div>
-    <div id="dataset-picker">
-    </div>
     <script type="text/javascript">
       var margin = { top: 50, right: 0, bottom: 100, left: 80 },
           fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31,25,20];
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom,
           gridSize = Math.floor(width / 80),
-          legendElementWidth = gridSize * 6,
-          colors = ["#FFFFFF", "#82A6AD","#A0BABF","#B8D6D1","#CEE4CC","#E2F2BF","#F3C683","#E87E4D","#CD463E","#A11A4D","#75085C","#430A4A"], // http://www.coloringnoise.com/theoretical_background/new-color-scheme/
+          legendElementWidth = gridSize * 7,
+          colors = ["#82A6AD","#A0BABF","#B8D6D1","#CEE4CC","#E2F2BF","#F3C683","#E87E4D","#CD463E","#A11A4D","#75085C","#430A4A"], // http://www.coloringnoise.com/theoretical_background/new-color-scheme/
           days = fields.map(f => f+" Hz"),
-          // times = d3.range(80).map(t => t * 250);
-          datasets = ["fast.json", "fast.json"];
+          datasets = [""];
 
       var svg = d3.select("#chart").append("svg")
           .attr("width", width + margin.left + margin.right)
@@ -56,23 +55,33 @@
             .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
             .attr("class", "dayLabel mono axis axis-workweek");
 
-      /*
-      var timeLabels = svg.selectAll(".timeLabel")
-          .data(times)
-          .enter().append("text")
-            .text(function(d) { return d; })
-            .attr("x", function(d, i) { return i * gridSize; })
-            .attr("y", 0)
-            .style("text-anchor", "middle")
-            .attr("transform", "translate(" + gridSize / 2 + ", -6)")
-            .attr("class", function(d, i) { return ((i >= 7 && i <= 16) ? "timeLabel mono axis axis-worktime" : "timeLabel mono axis"); });
-            */
+      var downloadedData = {};
 
-      var heatmapChart = function(jsonFile) {
-        d3.json(jsonFile).then(function(jsonContent) {
+
+      function onchange() {
+        	selectValue = d3.select('#dataset-picker').property('value')
+        	loadSensor(downloadedData, selectValue);
+        };
+      function loadSensor(jsonContent, sensorId) {
+
           var sensorId = jsonContent.aggregations.group.buckets[0].key;
+
+
+          var select = d3.select('#dataset-picker')
+            .append('select')
+              .attr('class','select')
+              .on('change',onchange)
+
+          var options = select
+            .selectAll('option')
+            .data([sensorId]).enter()
+            .append('option')
+              .text(function (d) { return d; });
+
+
           var stepCount = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.leq.length;
           var sensorData = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source;
+          var sensorTime = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.timestamp;
           var data = [];
           var t, freqIndex;
           for(t=0; t<stepCount; t++) {
@@ -86,7 +95,7 @@
             }
           }
 
-          var colorScale = d3.scaleQuantize().domain([25,85]).range(colors);
+          var colorScale = d3.scaleQuantize().domain([30,85]).range(colors);
 
           var cards = svg.selectAll(".hour")
               .data(data, function(d) {return d.day+':'+d.hour;});
@@ -102,10 +111,10 @@
               .attr("height", gridSize)
               .style("fill", colors[0]).transition().duration(1000).style("fill", function(d) { return colorScale(d.value); })
 
-          rect.append("title").text(function(d) { return d.value; });
+          rect.append("title").text(function(d) { return new Date(sensorTime + (d.hour - 1) * 125).toISOString() + " : " + d.value; });
 
           var legend = svg.selectAll(".legend")
-              .data(colors.map(c => colorScale.invertExtent(c)));
+              .data(d3.range(colors.length));
 
           var legendgroup = legend.enter().append("g")
               .attr("class", "legend");
@@ -119,27 +128,32 @@
 
           legendgroup.append("text")
             .attr("class", "mono")
-            .text(function(d) { return Math.round(d[0]) + " - " + Math.round(d[1])})
-            .attr("x", function(d, i) { return legendElementWidth * i + 10; })
+            .text(function(d) { var ranges = colorScale.invertExtent(colors[d]); return d == 0 ? "< " + Math.round(ranges[1]) : d < colors.length - 1 ? Math.round(ranges[0]) + " - " + Math.round(ranges[1]) : "> " + Math.round(ranges[0])})
+            .attr("x", function(d, i) { return legendElementWidth * i + 15; })
             .attr("y", height + (legendElementWidth / 4) + 15);
 
 
+        var timeLabels = svg.selectAll(".timeLabel")
+            .data([0,1])
+            .enter().append("text")
+            .text(function(d) { return new Date(sensorTime + d * 125 * 80).toISOString(); })
+            .attr("x", function(d, i) { return d == 0 ? 80 : i * gridSize * 79 - 80; })
+            .attr("y", -8)
+            .style("text-anchor", "middle")
+            .attr("transform", "translate(" + gridSize / 2 + ", -6)")
+            .attr("class", function(d, i) { return ((i >= 7 && i <= 16) ? "timeLabel mono axis axis-worktime" : "timeLabel mono axis"); });
+
+      }
+
+      var heatmapChart = function(sensorId) {
+        d3.json("fast.json").then(function(jsonContent) {
+          downloadedData = jsonContent;
+          loadSensor(jsonContent, sensorId);
         });
       };
 
-      heatmapChart(datasets[0]);
+      heatmapChart("");
 
-      var datasetpicker = d3.select("#dataset-picker").selectAll(".dataset-button")
-        .data(datasets);
-
-      datasetpicker.enter()
-        .append("input")
-        .attr("value", function(d){ return "Dataset " + d })
-        .attr("type", "button")
-        .attr("class", "dataset-button")
-        .on("click", function(d) {
-          heatmapChart(d);
-        });
     </script>
   </body>
 </html>
