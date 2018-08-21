@@ -51,7 +51,7 @@
           .enter().append("text")
             .text(function (d) { return d; })
             .attr("x", 0)
-            .attr("y", function (d, i) { return i * gridSize; })
+            .attr("y", function (d, i) { return i * gridSize - 8; })
             .style("text-anchor", "end")
             .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
             .attr("class", "dayLabel mono axis axis-workweek");
