@@ -63,10 +63,11 @@
         	loadSensor(downloadedData, selectValue);
         };
       function loadSensor(jsonContent, sensorId) {
-
-          var sensorId = jsonContent.aggregations.group.buckets[0].key;
-
-
+          var sensors = jsonContent.aggregations.group.buckets.map( s => s.key)
+          var sensorIndex = sensors.indexOf(sensorId)
+          if(sensorIndex == -1) {
+            sensorIndex = 0;
+          }
           var select = d3.select('#dataset-picker')
             .append('select')
               .attr('class','select')
@@ -74,14 +75,14 @@
 
           var options = select
             .selectAll('option')
-            .data([sensorId]).enter()
+            .data(sensors).enter()
             .append('option')
               .text(function (d) { return d; });
 
 
-          var stepCount = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.leq.length;
-          var sensorData = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source;
-          var sensorTime = jsonContent.aggregations.group.buckets[0].group_docs.hits.hits[0]._source.timestamp;
+          var stepCount = jsonContent.aggregations.group.buckets[sensorIndex].group_docs.hits.hits[0]._source.leq.length;
+          var sensorData = jsonContent.aggregations.group.buckets[sensorIndex].group_docs.hits.hits[0]._source;
+          var sensorTime = jsonContent.aggregations.group.buckets[sensorIndex].group_docs.hits.hits[0]._source.timestamp;
           var data = [];
           var t, freqIndex;
           for(t=0; t<stepCount; t++) {
