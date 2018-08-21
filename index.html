@@ -42,13 +42,13 @@
     <div id="chart"></div>
     <script type="text/javascript">
       var margin = { top: 50, right: 0, bottom: 100, left: 80 },
-          fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31,25,20];
+          fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31,25,20,'leq', 'laeq'];
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom,
           gridSize = Math.floor(width / 80),
           legendElementWidth = gridSize * 7,
           colors = ["#82A6AD","#A0BABF","#B8D6D1","#CEE4CC","#E2F2BF","#F3C683","#E87E4D","#CD463E","#A11A4D","#75085C","#430A4A"], // http://www.coloringnoise.com/theoretical_background/new-color-scheme/
-          days = fields.map(f => f+" Hz"),
+          days = fields.map(f => f<= 1000 ? f+" Hz" : f > 1000 ? Math.round(f / 100.) / 10 + " kHz": f),
           datasets = [""];
 
       var svg = d3.select("#chart").append("svg")
@@ -156,9 +156,9 @@
             for(freqIndex=0; freqIndex < fields.length; freqIndex++) {
               freqField = fields[freqIndex];
               data.push({
-                day: + (fields.length - (freqIndex+1)),
+                day: + freqIndex < fields.length - 2 ? (fields.length - 2) - (freqIndex+1) : freqIndex,
                 hour: + (t+1),
-                value: + sensorData['leq_'+freqField][t]
+                value: + (freqIndex < fields.length - 2 ? sensorData['leq_'+freqField][t] : freqIndex == fields.length - 2 ? sensorData['leq'][t] : sensorData['laeq'][t])
               });
             }
           }
@@ -179,7 +179,7 @@
               .attr("height", gridSize)
               .style("fill", colors[0]).transition().duration(1000).style("fill", function(d) { return colorScale(d.value); })
 
-          rect.append("title").text(function(d) { return new Date(sensorTime + (d.hour - 1) * 125).toISOString() + " : " + d.value; });
+          rect.append("title").text(function(d) { return new Date(sensorTime + (d.hour - 1) * 125).toISOString() + " : " + d.value + " dB"; });
 
           var legend = svg.selectAll(".legend")
               .data(d3.range(colors.length));
