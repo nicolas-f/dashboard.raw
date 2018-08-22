@@ -3,11 +3,6 @@
 <html>
   <head>
     <style>
-      rect.bordered {
-        /*stroke: #E6E6E6;
-        stroke-width:2px;*/
-      }
-
       .timediv {
         margin-top: 5px;
         margin-bottom: 5px;
@@ -27,10 +22,10 @@
       }
     </style>
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script type="text/javascript" src="jquery.min.js"></script>
-    <script type="text/javascript" src="moment.min.js"></script>
-    <script type="text/javascript" src="daterangepicker.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="daterangepicker.css" />
+    <script type="text/javascript" src="static/jquery.min.js"></script>
+    <script type="text/javascript" src="static/moment.min.js"></script>
+    <script type="text/javascript" src="static/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/daterangepicker.css" />
   </head>
   <body>
   <div id="dataset-picker"></div>
@@ -174,7 +169,7 @@
 
           rect.attr("x", function(d) { return (d.hour - 1) * gridSize; })
               .attr("y", function(d) { return (d.day - 1) * gridSize; })
-              .attr("class", "hour bordered")
+              .attr("class", "hour")
               .attr("width", gridSize)
               .attr("height", gridSize)
               .style("fill", colors[0]).transition().duration(1000).style("fill", function(d) { return colorScale(d.value); })
@@ -213,8 +208,8 @@
 
       }
 
-      var heatmapChart = function(sensorId) {
-        d3.json("fast.json").then(function(jsonContent) {
+      var heatmapChart = function(timeStart, sensorId) {
+        d3.json("fast.json?start="+timeStart).then(function(jsonContent) {
           downloadedData = jsonContent;
           loadSensor(jsonContent, sensorId);
         });
