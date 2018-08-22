@@ -129,12 +129,16 @@
       });
 
       function before() {
+        const targetTime = moment(displayed_time).subtract(10, 'seconds');
+        $('input[name="datetimes"]').data('daterangepicker').setStartDate(targetTime);
         selectValue = d3.select('#dataset-picker').property('value')
-        heatmapChart(moment(displayed_time).subtract(10, 'seconds').valueOf(), selectValue);
+        heatmapChart(targetTime.valueOf(), selectValue);
       };
       function after() {
+        const targetTime = moment(displayed_time).add(10, 'seconds');
+        $('input[name="datetimes"]').data('daterangepicker').setStartDate(targetTime);
         selectValue = d3.select('#dataset-picker').property('value')
-        heatmapChart(moment(displayed_time).add(10, 'seconds').valueOf(), selectValue);
+        heatmapChart(targetTime.valueOf(), selectValue);
       };
       function onchange() {
           if(downloadedData.length > 0) {
