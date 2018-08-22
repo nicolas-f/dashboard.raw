@@ -37,7 +37,7 @@ query = u"""{
 
 class processing:
     def __init__(self):
-        pass
+        self.fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31,25,20];
 
     def query_es(self, start_time):
         if not hasattr(self, 'config'):
@@ -59,7 +59,14 @@ class processing:
     def export(self, start_time):
         jsonstring = self.query_es(start_time)
         content = json.load(io.StringIO(jsonstring))
-        print content
+        measurement = content["hits"]["hits"][0]["_source"]
+        t = measurement["timestamp"]
+        leq_125ms_bands = [[] for i in self.fields]
+        for idt in range(80):
+            for idfreq, freq in enumerate(self.fields):
+                leq_125ms_bands[idfreq].append(measurement["leq_"+str(freq)])
+            t+=125
+        print leq_125ms_bands
 
 class Networkerror(RuntimeError):
    def __init__(self, arg):
