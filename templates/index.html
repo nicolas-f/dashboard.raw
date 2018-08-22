@@ -148,8 +148,12 @@
         };
 
       function loadSensor(jsonContent, sensorId) {
+          svg.selectAll(".hour").remove();
           if (typeof jsonContent.aggregations == 'undefined') {
             throw "Wrong Json conent " + jsonContent;
+          }
+          if(jsonContent.aggregations.group.buckets.length == 0) {
+            return;
           }
           var sensors = jsonContent.aggregations.group.buckets.map( s => s.key)
           var sensorIndex = sensors.indexOf(sensorId)
@@ -183,7 +187,6 @@
 
           var colorScale = d3.scaleQuantize().domain([30,85]).range(colors);
 
-          svg.selectAll(".hour").remove();
           var cards = svg.selectAll(".hour")
               .data(data, function(d) {return d.day+':'+d.hour;});
 
