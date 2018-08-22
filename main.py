@@ -1,7 +1,5 @@
 from flask import Flask, request, render_template, Response
 from flask_restful import Resource, Api
-from json import dumps
-from flask_jsonpify import jsonify
 import requests
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 import os
