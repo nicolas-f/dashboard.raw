@@ -115,7 +115,8 @@
           "startDate": moment().subtract(1, 'minutes'),
           "endDate": moment()
       }, function(start, end, label) {
-        console.log('New date range selected: ' + start.format('YYYY-MM-DD HH:mm:ss') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+        selectValue = d3.select('#dataset-picker').property('value')
+        heatmapChart(start.valueOf(), selectValue);
       });
 
       function onchange() {
@@ -125,6 +126,9 @@
           }
         };
       function loadSensor(jsonContent, sensorId) {
+          if (typeof jsonContent.aggregations == 'undefined') {
+            throw "Wrong Json conent " + jsonContent;
+          }
           var sensors = jsonContent.aggregations.group.buckets.map( s => s.key)
           var sensorIndex = sensors.indexOf(sensorId)
           if(sensorIndex == -1) {
@@ -209,13 +213,13 @@
       }
 
       var heatmapChart = function(timeStart, sensorId) {
-        d3.json("fast.json?start="+timeStart).then(function(jsonContent) {
+        d3.json("fast/"+timeStart).then(function(jsonContent) {
           downloadedData = jsonContent;
           loadSensor(jsonContent, sensorId);
         });
       };
 
-      heatmapChart("");
+      heatmapChart(moment().subtract(1, 'minutes').valueOf(), "");
 
     </script>
   </body>

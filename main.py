@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, Response
 from flask_restful import Resource, Api
 from json import dumps
 from flask_jsonpify import jsonify
@@ -31,7 +31,7 @@ class QueryFullFast(Resource):
     	if resp.status_code != 200:
     		# This means something went wrong.
     		raise Networkerror([resp.status_code])
-        return resp.content
+        return Response(resp.content, mimetype='application/json')
 
 api.add_resource(QueryFullFast, '/fast/<int:start_time>') # Route_3
 
