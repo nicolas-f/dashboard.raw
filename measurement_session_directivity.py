@@ -1,7 +1,7 @@
 import requests
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 import os
-import httplib
+import datetime
 import configparser
 import time
 import json
@@ -74,7 +74,7 @@ class processing:
                 # There is 80 * 125 ms in a document (10 s)
                 # But we merge 8*125 ms to make 1 s
                 for idt in range(10):
-                    sys.stdout.write("%d" % t)
+                    sys.stdout.write("%s" % datetime.datetime.utcfromtimestamp(t / 1e3).isoformat())
                     for idfreq, freq in enumerate(self.fields):
                         leq1s = 10 * log10(sum(
                             map(lambda x: 10 ** (x / 10.), measurement["leq_" + str(freq)][idt * 8:idt * 8 + 8])) / 8)
@@ -102,4 +102,4 @@ class Networkerror(RuntimeError):
 
 p = processing()
 
-p.export(time.time() * 1e3 - 50e3, time.time() * 1e3 - 20e3)
+p.export(time.time() * 1e3 - 120e3, time.time() * 1e3 - 60e3)
