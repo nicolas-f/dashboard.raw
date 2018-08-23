@@ -10,8 +10,8 @@ GET osh_data_acoustic_fast/_search
         {
           "range": {
             "timestamp": {
-            "gte": 1534770586960,
-            "lte": 1534770691783,
+            "gte": 1534949093434,
+            "lte": 1534949103434,
               "format": "epoch_millis"
             }
           }

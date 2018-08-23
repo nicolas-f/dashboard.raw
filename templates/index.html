@@ -170,7 +170,7 @@
             for(freqIndex=0; freqIndex < fields.length; freqIndex++) {
               freqField = Math.trunc(fields[freqIndex]);
               data.push({
-                day: + freqIndex < fields.length - 2 ? (fields.length - 2) - (freqIndex+1) : freqIndex,
+                day: freqIndex,
                 hour: + (t+1),
                 value: + (freqIndex < fields.length - 2 ? sensorData['leq_'+freqField][t] : freqIndex == fields.length - 2 ? sensorData['leq'][t] : sensorData['laeq'][t])
               });
