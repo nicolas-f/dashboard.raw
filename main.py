@@ -12,6 +12,7 @@ config = configparser.ConfigParser()
 cfg_file_path = os.path.join(app.root_path, 'appconfig.ini')
 if not os.path.exists(cfg_file_path):
     config["ELASTIC_SEARCH"] = {'URL': 'http://localhost:9200', 'USER': 'ESUSER', 'PASSWORD': 'ESPASSWORD'}
+    config["SERVER"] = {'PORT': '5002'}
     config.write(cfg_file_path)
     os.chmod(cfg_file_path, 0600)
 else:
@@ -51,6 +52,6 @@ class Networkerror(RuntimeError):
 if __name__ == '__main__':
     try:
         from waitress import serve
-        serve(app)
+        serve(app, port=config['SERVER']['PORT'])
     except ImportError:
-        app.run(port='5002')
+        app.run(port=config['SERVER']['PORT'])
