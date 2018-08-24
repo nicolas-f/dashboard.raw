@@ -9,6 +9,8 @@ import io
 from math import *
 import sys
 
+level_trigger = 80
+
 query = u"""{
     "query": {
     "bool": {
@@ -46,8 +48,7 @@ query = u"""{
 
 class processing:
     def __init__(self):
-        self.fields = [12500, 10000, 8000, 6300, 5000, 4000, 3150, 2500, 2000, 1600, 1250, 1000, 800, 630, 500, 400,
-                       315, 250, 200, 160, 125, 100, 80, 63, 50, 40, 31, 25, 20];
+        self.fields = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500]
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join('appconfig.ini'))
 
@@ -69,19 +70,51 @@ class processing:
         measurements = []
         measurement = None
         t = start_time
+        record_state = 'WAITING_START'
+
+        sys.stdout.write("t")
+        for idf, f in enumerate(self.fields):
+            sys.stdout.write(",")
+            sys.stdout.write("{:g}".format(f))
+        sys.stdout.write("\n")
         while t < end_time:
             if measurement is not None:
-                # There is 80 * 125 ms in a document (10 s)
-                # But we merge 8*125 ms to make 1 s
-                for idt in range(10):
-                    sys.stdout.write("%s" % datetime.datetime.utcfromtimestamp(t / 1e3).isoformat())
-                    for idfreq, freq in enumerate(self.fields):
-                        leq1s = 10 * log10(sum(
-                            map(lambda x: 10 ** (x / 10.), measurement["leq_" + str(freq)][idt * 8:idt * 8 + 8])) / 8)
-                        # leq_1s_bands[idfreq].append(leq1s)
-                        sys.stdout.write(",%.1f" % leq1s)
-                    sys.stdout.write("\n")
-                    t += 1e3
+                index_start = 0
+                while True:
+                    # There is 80 * 125 ms in a document (10 s)
+                    if record_state == 'WAITING_START':
+                        # Search level > 60 dB in this 10s range
+                        try:
+                            index_start = [l > level_trigger for l in measurement["leq"]].index(True, index_start)
+                            epoch = ((t + index_start * 125) / 1e3 + 2 * 3600)
+                            t_start = "%s" % datetime.datetime.utcfromtimestamp(epoch).isoformat()
+                            leq1s_stack = [[] for f in self.fields]
+                        except ValueError:
+                            break  # exit loop
+                        record_state = 'STARTED'
+
+                    if record_state == 'STARTED':
+                        try:
+                            index_end = [l < level_trigger for l in measurement["leq"]].index(True, index_start)
+                        except ValueError:
+                            index_end = len(measurement["leq"]) - 1
+                        for idfreq, freq in enumerate(self.fields):
+                            leq1s_stack[idfreq] += measurement["leq_" + str(int(freq))][index_start:index_end]
+                        # end of measurement session
+                        if measurement["leq"][index_end] < level_trigger:
+                            sys.stdout.write(t_start)
+                            for idfreq, freq in enumerate(self.fields):
+                                leq_range = 10 * log10(sum(
+                                    map(lambda x: 10 ** (x / 10.),
+                                        leq1s_stack[idfreq][1:-1])) / len(leq1s_stack[idfreq][1:-1]))
+                                sys.stdout.write(",")
+                                sys.stdout.write("%.1f" % leq_range)
+                            sys.stdout.write("\n")
+                            record_state = 'WAITING_START'
+                            index_start = index_end
+                        else:
+                            break
+                t += 10e3
             if t < end_time:
                 if len(measurements) > 0:
                     measurement = measurements.pop(0)["_source"]
@@ -102,4 +135,4 @@ class Networkerror(RuntimeError):
 
 p = processing()
 
-p.export(time.time() * 1e3 - 120e3, time.time() * 1e3 - 60e3)
+p.export(1535106970524, 1535111120524)
