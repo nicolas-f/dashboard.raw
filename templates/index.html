@@ -243,9 +243,18 @@
 
       }
 
+      function onClear() {
+         dataTable.length = 0;
+         dataTable.push([]);
+         hot1.render();
+      }
+
       //  Append load loaded graph to table
       function append() {
             if(downloadedData != null) {
+              if(dataTable.length == 1) {
+                dataTable.pop();
+              }
               var selectValue = d3.select('#dataset-picker').property('value');
               var sensors = downloadedData.aggregations.group.buckets.map( s => s.key)
               var sensorIndex = sensors.indexOf(selectValue)
@@ -258,11 +267,11 @@
               var t, freqIndex;
               for(t=0; t<stepCount; t++) {
                 var rowvalues = [];
-                for(freqIndex=0; freqIndex < fields.length; freqIndex++) {
+                for(freqIndex=fields.length - 1; freqIndex >= 0 ; freqIndex--) {
                   freqField = Math.trunc(fields[freqIndex]);
                   rowvalues.push(freqIndex < fields.length - 2 ? sensorData['leq_'+freqField][t] : freqIndex == fields.length - 2 ? sensorData['leq'][t] : sensorData['laeq'][t]);
                 }
-                dataTable.push(rowvalues);
+                dataTable.push([sensorTime + t * 125, new Date(sensorTime + t * 125).toISOString()].concat(rowvalues));
               }
             }
             hot1.render();
