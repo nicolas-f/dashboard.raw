@@ -26,6 +26,8 @@
     <script type="text/javascript" src="static/moment.min.js"></script>
     <script type="text/javascript" src="static/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/daterangepicker.css" />
+    <script type="text/javascript" src="static/handsontable.min.js"></script>
+    <link type="text/css" href="static/handsontable.min.css" rel="stylesheet" media="screen">
   </head>
   <body>
   <div id="dataset-picker"></div>
@@ -35,6 +37,10 @@
     <input type="button" value=">>" onclick="after()">
   </div>
     <div id="chart"></div>
+    <input type="button" value="Clear" onclick="onClear()">
+    <input type="button" value="Append in table" onclick="append()">
+    <input type="button" value="Export CSV" onclick="onExport()">
+    <div id="datatable"></div>
     <script type="text/javascript">
       var margin = { top: 50, right: 0, bottom: 100, left: 80 },
           fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31.5,25,20,'leq', 'laeq'];
@@ -143,7 +149,7 @@
       function onchange() {
           if(downloadedData.length > 0) {
           	selectValue = d3.select('#dataset-picker').property('value')
-          	update(downloadedData, selectValue);
+          	loadSensor(downloadedData, selectValue);
           }
         };
 
@@ -237,6 +243,31 @@
 
       }
 
+      //  Append load loaded graph to table
+      function append() {
+            if(downloadedData != null) {
+              var selectValue = d3.select('#dataset-picker').property('value');
+              var sensors = downloadedData.aggregations.group.buckets.map( s => s.key)
+              var sensorIndex = sensors.indexOf(selectValue)
+              if(sensorIndex == -1) {
+                sensorIndex = 0;
+              }
+              var stepCount = downloadedData.aggregations.group.buckets[sensorIndex].group_docs.hits.hits[0]._source.leq.length;
+              var sensorData = downloadedData.aggregations.group.buckets[sensorIndex].group_docs.hits.hits[0]._source;
+              var sensorTime = downloadedData.aggregations.group.buckets[sensorIndex].group_docs.hits.hits[0]._source.timestamp;
+              var t, freqIndex;
+              for(t=0; t<stepCount; t++) {
+                var rowvalues = [];
+                for(freqIndex=0; freqIndex < fields.length; freqIndex++) {
+                  freqField = Math.trunc(fields[freqIndex]);
+                  rowvalues.push(freqIndex < fields.length - 2 ? sensorData['leq_'+freqField][t] : freqIndex == fields.length - 2 ? sensorData['leq'][t] : sensorData['laeq'][t]);
+                }
+                dataTable.push(rowvalues);
+              }
+            }
+            hot1.render();
+      }
+
       var heatmapChart = function(timeStart, sensorId) {
         d3.json("fast/"+timeStart).then(function(jsonContent) {
           downloadedData = jsonContent;
@@ -245,8 +276,21 @@
         });
       };
 
+
+      var dataTable = [[]];
+
       heatmapChart(moment().subtract(1, 'minutes').valueOf(), "");
 
+      var container1 = document.getElementById('datatable'),
+        settings1 = {
+          data: dataTable,
+          minCols: fields.length + 2,
+          autoColumnSize: true,
+          colHeaders: true,
+          colHeaders: ['epoch', 'date'].concat(fields.slice().reverse()),
+        }, hot1;
+
+      hot1 = new Handsontable(container1, settings1);
     </script>
   </body>
 </html>

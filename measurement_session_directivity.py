@@ -75,7 +75,7 @@ class processing:
             self.config["SERVER"] = {'PORT': '5002'}
             with open(cfg_file_path, "w") as f:
                 self.config.write(f)
-            os.chmod(cfg_file_path, 0600)
+            os.chmod(cfg_file_path, 600)
             sys.exit("Please edit appconfig.ini with your credentials")
         else:
             self.config.read(os.path.join('appconfig.ini'))
@@ -179,4 +179,4 @@ class Networkerror(RuntimeError):
 
 p = processing()
 
-p.export(1539087748000, 1539108758000)
+p.export(1539789222000, 1539810222000)
