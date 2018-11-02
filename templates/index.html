@@ -24,6 +24,7 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script type="text/javascript" src="static/jquery.min.js"></script>
     <script type="text/javascript" src="static/moment.min.js"></script>
+    <script type="text/javascript" src="static/download.min.js"></script>
     <script type="text/javascript" src="static/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/daterangepicker.css" />
     <script type="text/javascript" src="static/handsontable.min.js"></script>
@@ -285,6 +286,17 @@
         });
       };
 
+      function onExport() {
+          var stringData, filename, link;
+
+          stringData = settings1.colHeaders.join(',') + "\n";
+
+          stringData += dataTable.map(row => row.join(',')).join("\n");
+
+          // stringData = 'data:text/csv;charset=utf-8,' + stringData;
+
+          download(stringData, "rawdata.csv", "text/plain");
+      }
 
       var dataTable = [[]];
 
@@ -294,8 +306,8 @@
         settings1 = {
           data: dataTable,
           minCols: fields.length + 2,
+          readOnly: true,
           autoColumnSize: true,
-          colHeaders: true,
           colHeaders: ['epoch', 'date'].concat(fields.slice().reverse()),
         }, hot1;
 

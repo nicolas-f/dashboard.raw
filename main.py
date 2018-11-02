@@ -27,8 +27,9 @@ def hello():
 
 class QueryFullFast(Resource):
     def get(self, start_time):
-        with open(os.path.join(app.root_path, "fast.json"), "r") as f:
-            return  Response(f.read(), mimetype='application/json')
+        # uncomment if no server available for dev purpose
+        #with open(os.path.join(app.root_path, "fast.json"), "r") as f:
+        #    return  Response(f.read(), mimetype='application/json')
         post_data = render_template('query.json', start_time=start_time, end_time=int(start_time) + 10e3)
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search',
                              verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
