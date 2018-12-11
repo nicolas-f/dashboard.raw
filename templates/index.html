@@ -21,7 +21,7 @@
         fill: #000;
       }
     </style>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script type="text/javascript" src="static/d3.v5.min.js"></script>
     <script type="text/javascript" src="static/jquery.min.js"></script>
     <script type="text/javascript" src="static/moment.min.js"></script>
     <script type="text/javascript" src="static/daterangepicker.min.js"></script>
@@ -67,7 +67,7 @@
      const select = d3.select('#dataset-picker')
             .append('select')
               .attr('class','select')
-              .on('change',onchange)
+              .on('change',changesensor)
 
 
 
@@ -124,26 +124,26 @@
           "startDate": moment().subtract(1, 'minutes'),
           "endDate": moment()
       }, function(start, end, label) {
-        selectValue = d3.select('#dataset-picker').property('value')
+        selectValue = d3.select('select').property('value')
         heatmapChart(start.valueOf(), selectValue);
       });
 
       function before() {
         const targetTime = moment(displayed_time).subtract(10, 'seconds');
         $('input[name="datetimes"]').data('daterangepicker').setStartDate(targetTime);
-        selectValue = d3.select('#dataset-picker').property('value')
+        selectValue = d3.select('select').property('value')
         heatmapChart(targetTime.valueOf(), selectValue);
       };
       function after() {
         const targetTime = moment(displayed_time).add(10, 'seconds');
         $('input[name="datetimes"]').data('daterangepicker').setStartDate(targetTime);
-        selectValue = d3.select('#dataset-picker').property('value')
+        selectValue = d3.select('select').property('value')
         heatmapChart(targetTime.valueOf(), selectValue);
       };
-      function onchange() {
-          if(downloadedData.length > 0) {
-          	selectValue = d3.select('#dataset-picker').property('value')
-          	update(downloadedData, selectValue);
+      function changesensor() {
+          if(typeof downloadedData != 'undefined' && typeof downloadedData.took != 'undefined') {
+          	selectValue = d3.select('select').property('value')
+          	loadSensor(downloadedData, selectValue);
           }
         };
 
@@ -183,6 +183,7 @@
             .selectAll('option')
             .data(sensors).enter()
             .append('option')
+              .property("selected", function(d){ return d === sensorId; })
               .text(function (d) { return d; });
 
           var colorScale = d3.scaleQuantize().domain([30,85]).range(colors);
