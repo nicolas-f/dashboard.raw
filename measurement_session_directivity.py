@@ -9,7 +9,7 @@ import io
 from math import *
 import sys
 
-level_trigger = 65
+level_trigger = 75
 # 4 s minimum length
 minimum_session_time_s = 4
 
@@ -75,7 +75,7 @@ class processing:
             self.config["SERVER"] = {'PORT': '5002'}
             with open(cfg_file_path, "w") as f:
                 self.config.write(f)
-            os.chmod(cfg_file_path, 0600)
+            os.chmod(cfg_file_path, 600)
             sys.exit("Please edit appconfig.ini with your credentials")
         else:
             self.config.read(os.path.join('appconfig.ini'))
