@@ -9,7 +9,7 @@ import io
 from math import *
 import sys
 
-level_trigger = 75
+level_trigger = 65
 # 4 s minimum length
 minimum_session_time_s = 4
 
@@ -179,4 +179,4 @@ class Networkerror(RuntimeError):
 
 p = processing()
 
-p.export(1539087748000, 1539108758000)
+p.export(1539765633000, 1539786510000)
