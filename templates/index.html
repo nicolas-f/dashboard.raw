@@ -257,7 +257,7 @@
               if(dataTable.length == 1) {
                 dataTable.pop();
               }
-              var selectValue = d3.select('#dataset-picker').property('value');
+              var selectValue = d3.select('select').property('value');
               var sensors = downloadedData.aggregations.group.buckets.map( s => s.key)
               var sensorIndex = sensors.indexOf(selectValue)
               if(sensorIndex == -1) {
