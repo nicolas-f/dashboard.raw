@@ -32,7 +32,7 @@ class QueryFullFast(Resource):
         #    return  Response(f.read(), mimetype='application/json')
         post_data = render_template('query.json', start_time=start_time, end_time=int(start_time) + 10e3)
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search',
-                             verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+                             #verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
                                                 config['ELASTIC_SEARCH']['PASSWORD']),
                              headers={'content-type': 'application/json'},
