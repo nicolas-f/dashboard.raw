@@ -273,7 +273,7 @@
                   freqField = Math.trunc(fields[freqIndex]);
                   rowvalues.push(freqIndex < fields.length - 2 ? sensorData['leq_'+freqField][t] : freqIndex == fields.length - 2 ? sensorData['leq'][t] : sensorData['laeq'][t]);
                 }
-                dataTable.push([sensorTime + t * 125, new Date(sensorTime + t * 125).toISOString()].concat(rowvalues));
+                dataTable.push([selectValue, sensorTime + t * 125, new Date(sensorTime + t * 125).toISOString()].concat(rowvalues));
               }
             }
             hot1.render();
@@ -306,10 +306,10 @@
       var container1 = document.getElementById('datatable'),
         settings1 = {
           data: dataTable,
-          minCols: fields.length + 2,
+          minCols: fields.length + 3,
           readOnly: true,
           autoColumnSize: true,
-          colHeaders: ['epoch', 'date'].concat(fields.slice().reverse()),
+          colHeaders: ['sensor', 'epoch', 'date'].concat(fields.slice().reverse()),
         }, hot1;
 
       hot1 = new Handsontable(container1, settings1);
