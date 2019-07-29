@@ -280,11 +280,25 @@
       }
 
       var heatmapChart = function(timeStart, sensorId) {
-        d3.json("fast/"+timeStart).then(function(jsonContent) {
-          downloadedData = jsonContent;
-          displayed_time = timeStart;
-          loadSensor(jsonContent, sensorId);
-        });
+	if(sensorId == "") {
+		$.getJSON( "sensors", function( data ) {
+		  var items = [];
+		  $.each( data, function( key, val ) {
+		    items.push( "<li id='" + key + "'>" + val + "</li>" );
+		  });
+		 
+		  $( "<ul/>", {
+		    "class": "my-new-list",
+		    html: items.join( "" )
+		  }).appendTo( "body" );
+		});
+	} else {
+		d3.json("fast/"+sensorId+"/"+timeStart).then(function(jsonContent) {
+		  downloadedData = jsonContent;
+		  displayed_time = timeStart;
+		  loadSensor(jsonContent, sensorId);
+		});
+	}
       };
 
       function onExport() {

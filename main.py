@@ -26,11 +26,11 @@ def hello():
 
 
 class QueryFullFast(Resource):
-    def get(self, start_time):
+    def get(self, sensor_id, start_time):
         # uncomment if no server available for dev purpose
         #with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
-        post_data = render_template('query.json', start_time=start_time, end_time=int(start_time) + 10e3)
+        post_data = render_template('query_spectrum.json', start_time=start_time, end_time=int(start_time) + 10e3, sensor_id= sensor_id)
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search',
                              #verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
@@ -43,8 +43,27 @@ class QueryFullFast(Resource):
             raise Networkerror([resp.status_code])
         return Response(resp.content, mimetype='application/json')
 
+class QuerySensorList(Resource):
+    def get(self):
+        # uncomment if no server available for dev purpose
+        #with open(os.path.join(app.root_path, "fast.json"), "r") as f:
+        #    return  Response(f.read(), mimetype='application/json')
+        post_data = render_template('query_sensor_list.json')
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_sensorlocation/_search',
+                             #verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
 
-api.add_resource(QueryFullFast, '/fast/<int:start_time>')  # Route_3
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
+
+
+api.add_resource(QuerySensorList, '/sensors')  # Route_3
+api.add_resource(QueryFullFast, '/fast/<string:sensor_id>/<int:start_time>')  # Route_3
 
 
 class Networkerror(RuntimeError):
