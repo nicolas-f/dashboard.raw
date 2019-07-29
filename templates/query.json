@@ -24,7 +24,8 @@
     "aggs": {
         "group": {
             "terms": {
-                "field": "producerID"
+                "field": "producerID",
+		"size": 200
             },
             "aggs": {
                 "group_docs": {
