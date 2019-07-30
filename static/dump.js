@@ -56,12 +56,16 @@ function loadDateTime() {
 
   }
 
-function getCarData() {
-    return [
-      {car: "Mercedes A 160", year: 2017, available: true, comesInBlack: 'yes'},
-      {car: "Citroen C4 Coupe", year: 2018, available: false, comesInBlack: 'yes'},
-      {car: "Audi A4 Avant", year: 2019, available: true, comesInBlack: 'no'},
-      {car: "Opel Astra", year: 2020, available: false, comesInBlack: 'yes'},
-      {car: "BMW 320i Coupe", year: 2021, available: false, comesInBlack: 'no'}
-    ];
+function getStations(dataTable, table) {
+    dataTable.length = 0;
+    $.getJSON( "sensors", function( data ) {
+      $.each( data.aggregations.group.buckets, function( key, val ) {
+        var lat = val.group_docs.hits.hits[0]._source.location.lat.toFixed(5);
+        var lon = val.group_docs.hits.hits[0]._source.location.lon.toFixed(5);
+        var url = "<a href=\"https://www.openstreetmap.org/note/new?lat="+lat+"&lon="+lon+"#map=17/"+lat+"/"+lon+"\" target=\"_blank\">"+lat+","+lon+"</a>";
+        dataTable.push({station: val["key"], url: url, checked : 'yes'});
+      }
+      );
+      table.render();
+    });
   }

@@ -21,6 +21,7 @@
         fill: #000;
       }
 
+
     </style>
     <script type="text/javascript" src="static/jquery.min.js"></script>
     <script type="text/javascript" src="static/moment.min.js"></script>
@@ -35,7 +36,7 @@
 <body>
 
 <div class="form-style-7">
-<h1>Extraction des données des capteurs au format csv</h1>
+    <h1>Extraction des données des capteurs au format csv</h1>
     <ul>
         <li>
             <label for="datetimes">Dates</label>
@@ -45,20 +46,20 @@
         <li>
             <label for="weekDays-selector">Jours</label>
             <div class="weekDays-selector">
-              <input type="checkbox" id="weekday-mon" class="weekday" checked/>
-              <label for="weekday-mon">Lun</label>
-              <input type="checkbox" id="weekday-tue" class="weekday" checked/>
-              <label for="weekday-tue">Mar</label>
-              <input type="checkbox" id="weekday-wed" class="weekday" checked/>
-              <label for="weekday-wed">Mer</label>
-              <input type="checkbox" id="weekday-thu" class="weekday" checked/>
-              <label for="weekday-thu">Jeu</label>
-              <input type="checkbox" id="weekday-fri" class="weekday" checked/>
-              <label for="weekday-fri">Ven</label>
-              <input type="checkbox" id="weekday-sat" class="weekday" checked/>
-              <label for="weekday-sat">Sam</label>
-              <input type="checkbox" id="weekday-sun" class="weekday" checked/>
-              <label for="weekday-sun">Dim</label>
+                <input type="checkbox" id="weekday-mon" class="weekday" checked/>
+                <label for="weekday-mon">Lun</label>
+                <input type="checkbox" id="weekday-tue" class="weekday" checked/>
+                <label for="weekday-tue">Mar</label>
+                <input type="checkbox" id="weekday-wed" class="weekday" checked/>
+                <label for="weekday-wed">Mer</label>
+                <input type="checkbox" id="weekday-thu" class="weekday" checked/>
+                <label for="weekday-thu">Jeu</label>
+                <input type="checkbox" id="weekday-fri" class="weekday" checked/>
+                <label for="weekday-fri">Ven</label>
+                <input type="checkbox" id="weekday-sat" class="weekday" checked/>
+                <label for="weekday-sat">Sam</label>
+                <input type="checkbox" id="weekday-sun" class="weekday" checked/>
+                <label for="weekday-sun">Dim</label>
             </div>
             <span>Jours de la semaine</span>
         </li>
@@ -74,18 +75,18 @@
         </li>
         <li>
             <div class="weekDays-selector">
-              <input type="checkbox" id="data_leq" class="weekday" checked/>
-              <label for="data_leq">Leq</label>
-              <input type="checkbox" id="data_laeq" class="weekday" checked/>
-              <label for="data_laeq">Laeq</label>
-              <input type="checkbox" id="data_spectrum" class="weekday" checked/>
-              <label for="data_spectrum">Spectrum</label>
+                <input type="checkbox" id="data_leq" class="weekday" checked/>
+                <label for="data_leq">Leq</label>
+                <input type="checkbox" id="data_laeq" class="weekday" checked/>
+                <label for="data_laeq">Laeq</label>
+                <input type="checkbox" id="data_spectrum" class="weekday" checked/>
+                <label for="data_spectrum">Spectrum</label>
             </div>
             <span>Données à extraire</span>
         </li>
         <li>
             <label for="stations">Stations</label>
-            <div id="stations"  class="hot handsontable htColumnHeaders"></div>
+            <div id="stations" class="hot handsontable htColumnHeaders"></div>
             <span>Stations to extract</span>
         </li>
         <li>
@@ -101,25 +102,33 @@
 <script>
     loadDateTime();
 
-  var example3 = document.getElementById('stations');
+  var stationTable = document.getElementById('stations');
 
-  var hot3 = new Handsontable(example3, {
-    data: getCarData(),
-    colHeaders: ['Name', 'Location', 'Last data'],
+  var dataTable = [];
+    var stations = new Handsontable(stationTable, {
+    data:dataTable,
+    colHeaders: ['Name', 'Location'],
     columns: [
       {
-        data: 'comesInBlack',
+        data: 'checked',
         type: 'checkbox',
+        className: "htLeft",
         checkedTemplate: 'yes',
         uncheckedTemplate: 'no',
         label: {
           position: 'after',
-          property: 'car'
+          property: 'station'
         },
+      },
+      {
+        data: 'url',
+        renderer: 'html',
+        type: 'text',
       },
     ]
   });
 
+    getStations(dataTable, stations);
 
 </script>
 </body>
