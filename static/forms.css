@@ -1,6 +1,6 @@
 
 .form-style-7{
-	max-width:800px;
+	max-width:600px;
 	margin:10px auto;
 	background:#fff;
 	border-radius:2px;
@@ -133,4 +133,11 @@
 .weekDays-selector input[type=checkbox]:checked + label {
   background: #2AD705;
   color: #ffffff;
+}
+
+
+.buttons-bar {
+  display: flex;
+  padding-bottom: 15px;
+  justify-content: space-evenly;
 }

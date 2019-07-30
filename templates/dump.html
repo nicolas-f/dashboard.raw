@@ -85,8 +85,15 @@
             <span>Données à extraire</span>
         </li>
         <li>
-            <label for="stations">Stations</label>
-            <div id="stations" class="hot handsontable htColumnHeaders"></div>
+            <label for="station-frame">Stations</label>
+            <div id="station-frame">
+                <div class="buttons-bar">
+                    <button onclick="selectAll()">Select all</button>
+                    <button onclick="selectNone()">Select none</button>
+                    <button  onclick="geoCoding()">Get Streets</button>
+                </div>
+                <div id="stations" class="hot handsontable htColumnHeaders"></div>
+            </div>
             <span>Stations to extract</span>
         </li>
         <li>
@@ -107,6 +114,7 @@
   var dataTable = [];
     var stations = new Handsontable(stationTable, {
     data:dataTable,
+    stretchH: 'all',
     colHeaders: ['Name', 'Location'],
     columns: [
       {

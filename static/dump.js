@@ -63,9 +63,30 @@ function getStations(dataTable, table) {
         var lat = val.group_docs.hits.hits[0]._source.location.lat.toFixed(5);
         var lon = val.group_docs.hits.hits[0]._source.location.lon.toFixed(5);
         var url = "<a href=\"https://www.openstreetmap.org/note/new?lat="+lat+"&lon="+lon+"#map=17/"+lat+"/"+lon+"\" target=\"_blank\">"+lat+","+lon+"</a>";
-        dataTable.push({station: val["key"], url: url, checked : 'yes'});
+        dataTable.push({station: val["key"], url: url, checked : 'yes', lat:val.group_docs.hits.hits[0]._source.location.lat, lon:val.group_docs.hits.hits[0]._source.location.lon});
       }
       );
       table.render();
     });
   }
+
+
+
+function selectAll() {
+    $.each(dataTable, function( key, val ) {
+        val["checked"] = "yes";
+    });
+    stations.render();
+}
+
+function selectNone() {
+    $.each(dataTable, function( key, val ) {
+        val["checked"] = "no";
+    });
+    stations.render();
+}
+
+function geoCoding() {
+
+}
+
