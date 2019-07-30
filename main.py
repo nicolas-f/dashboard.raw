@@ -46,6 +46,23 @@ class QueryFullFast(Resource):
             raise Networkerror([resp.status_code])
         return Response(resp.content, mimetype='application/json')
 
+class QuerySensorList(Resource):
+    def get(self):
+        post_data = render_template('query_sensor_list.json')
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_sensorlocation/_search',
+                             #verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
+
+
+api.add_resource(QuerySensorList, '/sensors')
 
 api.add_resource(QueryFullFast, '/fast/<int:start_time>')  # Route_3
 
