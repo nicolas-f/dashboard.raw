@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <style>
+      .timediv {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+      text.mono {
+        font-size: 9pt;
+        font-family: Consolas, courier;
+        fill: #aaa;
+      }
+
+      text.axis-workweek {
+        fill: #000;
+      }
+
+      text.axis-worktime {
+        fill: #000;
+      }
+
+    </style>
+    <script type="text/javascript" src="static/jquery.min.js"></script>
+    <script type="text/javascript" src="static/moment.min.js"></script>
+    <script type="text/javascript" src="static/daterangepicker.min.js"></script>
+    <!-- <script type="text/javascript" src="static/placeholders.min.js"></script> -->
+    <script type="text/javascript" src="static/dump.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="static/forms.css"/>
+    <script type="text/javascript" src="static/handsontable.min.js"></script>
+    <link type="text/css" href="static/handsontable.min.css" rel="stylesheet" media="screen">
+</head>
+<body>
+
+<div class="form-style-7">
+<h1>Extraction des données des capteurs au format csv</h1>
+    <ul>
+        <li>
+            <label for="datetimes">Dates</label>
+            <input type="text" name="datetimes"/>
+            <span>Intervalles d'extraction des données</span>
+        </li>
+        <li>
+            <div class="weekDays-selector">
+              <input type="checkbox" id="weekday-mon" class="weekday" checked/>
+              <label for="weekday-mon">Lun</label>
+              <input type="checkbox" id="weekday-tue" class="weekday" checked/>
+              <label for="weekday-tue">Mar</label>
+              <input type="checkbox" id="weekday-wed" class="weekday" checked/>
+              <label for="weekday-wed">Mer</label>
+              <input type="checkbox" id="weekday-thu" class="weekday" checked/>
+              <label for="weekday-thu">Jeu</label>
+              <input type="checkbox" id="weekday-fri" class="weekday" checked/>
+              <label for="weekday-fri">Ven</label>
+              <input type="checkbox" id="weekday-sat" class="weekday" checked/>
+              <label for="weekday-sat">Sam</label>
+              <input type="checkbox" id="weekday-sun" class="weekday" checked/>
+              <label for="weekday-sun">Dim</label>
+            </div>
+            <span>Jours de la semaine</span>
+        </li>
+        <li>
+            <label for="startHour">Heure début</label>
+            <input type="time" name="startHour">
+            <span>Filtre d'heure de début d'extraction</span>
+        </li>
+        <li>
+            <label for="endHour">Heure de fin</label>
+            <input type="time" name="endHour">
+            <span>Filtre d'heure de fin d'extraction</span>
+        </li>
+        <li>
+            <div class="weekDays-selector">
+              <input type="checkbox" id="data_leq" class="weekday" checked/>
+              <label for="data_leq">Leq</label>
+              <input type="checkbox" id="data_laeq" class="weekday" checked/>
+              <label for="data_laeq">Laeq</label>
+              <input type="checkbox" id="data_spectrum" class="weekday" checked/>
+              <label for="data_spectrum">Spectrum</label>
+            </div>
+            <span>Données à extraire</span>
+        </li>
+        <li>
+            <label for="stations">Stations</label>
+            <div id="stations"  class="hot handsontable htColumnHeaders"></div>
+            <span>Stations to extract</span>
+        </li>
+        <li>
+            <label for="timeout">Temps d'interruption</label>
+            <input type="time" name="timeout" value="00:00:30">
+            <span>Arrêt de l'extraction aprés X secondes</span>
+        </li>
+        <li>
+            <input type="submit" value="Generate">
+        </li>
+    </ul>
+</div>
+<script>
+    loadDateTime();
+
+  var example3 = document.getElementById('stations');
+
+  var hot3 = new Handsontable(example3, {
+    data: getCarData(),
+    colHeaders: ['Car model', 'Accepted', 'Comes in black'],
+    columns: [
+      {
+        data: 'comesInBlack',
+        type: 'checkbox',
+        checkedTemplate: 'yes',
+        uncheckedTemplate: 'no',
+        label: {
+          position: 'after',
+          property: 'car'
+        },
+      },
+    ]
+  });
+</script>
+</body>
+</html>

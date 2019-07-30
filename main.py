@@ -21,9 +21,12 @@ else:
 
 # a route where we will display a welcome message via an HTML template
 @app.route("/")
-def hello():
+def index():
     return render_template('index.html')
 
+@app.route("/dump.html")
+def dump():
+    return render_template('dump.html')
 
 class QueryFullFast(Resource):
     def get(self, start_time):
