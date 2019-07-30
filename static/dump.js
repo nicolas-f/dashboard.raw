@@ -87,6 +87,16 @@ function selectNone() {
 }
 
 function geoCoding() {
-
+    if(!geoCoded) {
+        $.each(dataTable, function( key, val ) {
+            $.getJSON( "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat="+val.lat.toFixed(6)+"&lon="+val.lon.toFixed(6), function( data ) {
+                var url = "<a href=\"https://www.openstreetmap.org/note/new?lat="+val.lat+"&lon="+val.lon+"#map=17/"+val.lat+"/"+val.lon+"\" target=\"_blank\">"+data["display_name"]+"</a>";
+                val["url"] = url;
+                stations.render();
+            });
+        });
+        //https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=47.75140&lon=-3.36124
+        geoCoded = true;
+    }
 }
 
