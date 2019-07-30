@@ -47,7 +47,7 @@ function loadDateTime() {
               ],
               "firstDay": 1
           },
-          "startDate": moment().subtract(1, 'minutes'),
+          "startDate": moment().startOf('hour'),
           "endDate": moment()
       }, function(start, end, label) {
         //selectValue = d3.select('select').property('value')

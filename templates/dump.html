@@ -43,6 +43,7 @@
             <span>Intervalles d'extraction des données</span>
         </li>
         <li>
+            <label for="weekDays-selector">Jours</label>
             <div class="weekDays-selector">
               <input type="checkbox" id="weekday-mon" class="weekday" checked/>
               <label for="weekday-mon">Lun</label>
@@ -89,7 +90,7 @@
         </li>
         <li>
             <label for="timeout">Temps d'interruption</label>
-            <input type="time" name="timeout" value="00:00:30">
+            <input type="time" name="timeout" value="00:00:30" step="1">
             <span>Arrêt de l'extraction aprés X secondes</span>
         </li>
         <li>
