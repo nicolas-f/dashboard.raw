@@ -88,9 +88,10 @@
             <label for="station-frame">Stations</label>
             <div id="station-frame">
                 <div class="buttons-bar">
-                    <button onclick="selectAll()">Select all</button>
-                    <button onclick="selectNone()">Select none</button>
-                    <button  onclick="geoCoding()">Get Streets</button>
+
+                    <input type="button" value="Select all" onclick="selectAll()">
+                    <input type="button" value="Select none" onclick="selectNone()">
+                    <input type="button" value="Get Streets" onclick="geoCoding()">
                 </div>
                 <div id="stations" class="hot handsontable htColumnHeaders"></div>
             </div>
@@ -102,7 +103,7 @@
             <span>Arrêt de l'extraction aprés X secondes</span>
         </li>
         <li>
-            <input type="submit" value="Generate">
+            <input type="button" value="Generate" onclick="generate()">
         </li>
     </ul>
 </div>

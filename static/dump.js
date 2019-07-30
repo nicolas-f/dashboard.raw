@@ -100,3 +100,60 @@ function geoCoding() {
     }
 }
 
+function generate() {
+    var dateStart = $('input[name="datetimes"]').data('daterangepicker').startDate.valueOf();
+    var dateEnd = $('input[name="datetimes"]').data('daterangepicker').endDate.valueOf();
+    var dayOfWeek = [];
+    // doc['field_name'].date.dayOfWeek Day of the week (1-7), e.g. 1 for Monday.
+
+    if($('input[id="weekday-mon"]')[0].checked) {
+        dayOfWeek.push(1);
+    }
+    if($('input[id="weekday-tue"]')[0].checked) {
+        dayOfWeek.push(2);
+    }
+    if($('input[id="weekday-wed"]')[0].checked) {
+        dayOfWeek.push(3);
+    }
+    if($('input[id="weekday-thu"]')[0].checked) {
+        dayOfWeek.push(4);
+    }
+    if($('input[id="weekday-fri"]')[0].checked) {
+        dayOfWeek.push(5);
+    }
+    if($('input[id="weekday-sat"]')[0].checked) {
+        dayOfWeek.push(6);
+    }
+    if($('input[id="weekday-sun"]')[0].checked) {
+        dayOfWeek.push(7);
+    }
+
+    var startHour = $('input[name="startHour"]')[0].value;
+    var endHour = $('input[name="endHour"]')[0].value;
+
+    var doLeq = $('input[id="data_leq"]')[0].checked;
+    var doLaeq = $('input[id="data_laeq"]')[0].checked;
+    var doSpectrum = $('input[id="data_spectrum"]')[0].checked;
+
+    var selectedSensors = [];
+    $.each(dataTable, function( key, val ) {
+        if(val["checked"] == "yes") {
+            selectedSensors.push(val["station"]);
+        }
+    });
+
+    var timeOut = $('input[name="timeout"]')[0].value;
+
+    // generate json to post
+    var jsonQuery = {
+        date_start : dateStart,
+        date_end : dateEnd,
+        leq : doLeq,
+        laeq : doLaeq,
+        spectrum : doSpectrum,
+        sensors : selectedSensors };
+
+    if(dayOfWeek.length < 7) {
+        jsonQuery["week_day"] = dayOfWeek;
+    }
+}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, send_from_directory
 from flask_restful import Resource, Api
 import requests
 from requests.auth import HTTPBasicAuth
@@ -27,6 +27,11 @@ def index():
 @app.route("/dump.html")
 def dump():
     return render_template('dump.html')
+
+# Custom static data
+@app.route('/generated/<path:filename>')
+def custom_static(filename):
+    return send_from_directory("generated", filename)
 
 class QueryFullFast(Resource):
     def get(self, start_time):
