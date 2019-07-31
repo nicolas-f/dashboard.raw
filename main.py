@@ -8,6 +8,7 @@ from multiprocessing import Process, Value
 import time
 import json
 import datetime
+import gzip
 
 app = Flask(__name__)
 api = Api(app)
@@ -97,16 +98,17 @@ class Generate:
 
     def __init__(self, conf):
         self.conf = conf
-        self.csv_filename = "generated" + os.sep + time.strftime("%Y_%m_%d_%Hh%Mm%Ss", time.localtime()) + ".csv"
+        self.csv_filename = "generated" + os.sep + time.strftime("%Y_%m_%d_%Hh%Mm%Ss", time.localtime()) + ".csv.gz"
 
     def generate_data(self):
         start = time.time()
+        epoch_end = self.conf["date_end"]
         do_leq = self.conf["leq"]
         do_spectrum = self.conf["spectrum"]
         do_laeq = self.conf["laeq"]
         do_filter_start = "start_hour" in self.conf
         do_filter_end = "end_hour" in self.conf
-        with open(self.csv_filename, "w") as csv_f:
+        with gzip.open(self.csv_filename, "wt") as csv_f:
             header_written = False
             for sensor in self.conf["sensors"]:
                 # generate elastic search query
@@ -226,11 +228,14 @@ class Generate:
                                 columns.append(source["leq_%d" % freq])
                         epoch = source["timestamp"]
                         for row in zip(*columns):
-                            csv_f.write("%s,%d,%s" % (sensor, epoch, datetime.datetime.utcfromtimestamp(epoch / 1000.0).
-                                                      strftime("%Y-%m-%dT%H:%M:%S.%fZ")))
-                            for col in row:
-                                csv_f.write(",%.2f" % col)
-                            csv_f.write("\n")
+                            if epoch < epoch_end:
+                                csv_f.write("%s,%d,%s" % (sensor, epoch, datetime.datetime.utcfromtimestamp(epoch / 1000.0).
+                                                          strftime("%Y-%m-%dT%H:%M:%S.%fZ")))
+                                for col in row:
+                                    csv_f.write(",%.2f" % col)
+                                csv_f.write("\n")
+                            else:
+                                break
                             epoch += 125
                     # fetch another batch
                     post_data = render_template('scroll.json', scroll_id=scroll_id)
