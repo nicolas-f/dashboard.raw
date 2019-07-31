@@ -4,3 +4,5 @@ results.csv
 venv
 generated/*.csv
 generated/*.gz
+generated/.~*
+

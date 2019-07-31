@@ -101,9 +101,9 @@ class Generate:
 
     def generate_data(self):
         start = time.time()
-        do_leq = "leq" in self.conf
-        do_spectrum = "spectrum" in self.conf
-        do_laeq = "leq" in self.conf
+        do_leq = self.conf["leq"]
+        do_spectrum = self.conf["spectrum"]
+        do_laeq = self.conf["laeq"]
         do_filter_start = "start_hour" in self.conf
         do_filter_end = "end_hour" in self.conf
         with open(self.csv_filename, "w") as csv_f:
