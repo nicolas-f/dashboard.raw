@@ -156,4 +156,26 @@ function generate() {
     if(dayOfWeek.length < 7) {
         jsonQuery["week_day"] = dayOfWeek;
     }
+
+    if(startHour != "") {
+        jsonQuery["start_hour"] = startHour;
+    }
+
+    if(endHour != "") {
+        jsonQuery["end_hour"] = endHour;
+    }
+
+    if(timeOut != "") {
+        jsonQuery["timeout"] = timeOut;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "generate",
+      data: JSON.stringify(jsonQuery),
+      success: function(val) {
+
+      },
+      contentType : 'application/json',
+    });
 }
