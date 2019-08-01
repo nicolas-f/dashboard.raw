@@ -210,7 +210,7 @@ class Generate(Process):
                 if resp.status_code != 200:
                     # This means something went wrong.
                     raise Networkerror([resp.status_code])
-                result = json.loads(resp.content)
+                result = json.loads(resp.content.decode('utf-8'))
 
                 # iterate with scroll api
                 scroll_id = result["_scroll_id"]
@@ -267,7 +267,7 @@ class Generate(Process):
                         raise Networkerror([resp.status_code])
                     if (time.time() - self.start_time) > timeout:
                         raise(TimeoutError())
-                    result = json.loads(resp.content)
+                    result = json.loads(resp.content.decode('utf-8'))
                     hits = result["hits"]["hits"]
 
 
