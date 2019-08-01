@@ -4,7 +4,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import os
 import configparser
-from multiprocessing import Process, Value
+from multiprocessing import Process, Manager
 import time
 import json
 import datetime
@@ -63,7 +63,6 @@ class QueryFullFast(Resource):
 
 
 process = {}
-process_id_count = 0
 
 
 class QuerySensorList(Resource):
@@ -86,26 +85,44 @@ class QueryGenerateData(Resource):
     def post(self):
         json_data = request.get_json(force=True)
         p = Generate(json_data)
-        p.generate_data()
+        process[p.id] = p
+        p.start()
         # return process id
-        return jsonify(process_id=1)
+        return jsonify(process_id=p.id)
 
 
-class Generate:
+class QueryProcessInfo(Resource):
+    def get(self, process_id):
+        if process_id in process:
+            p = process[process_id]
+            if p.exitcode is None:
+                return jsonify(process_id=p.start_time)
+            else:
+                return jsonify(process_id=p.start_time, file_path=p.csv_filename)
+        else:
+            return jsonify(error="Process not found")
+
+
+class Generate(Process):
     """
         Create CSV of sensors
     """
 
-    def __init__(self, conf):
+    def __init__(self, conf, group=None, target=None, name=None, args=(), kwargs={}):
+        super().__init__(group, target, name, args, kwargs)
         self.conf = conf
+        self.start_time = time.time()
+        self.id = int(self.start_time * 1000)
         self.csv_filename = "generated" + os.sep + time.strftime("%Y_%m_%d_%Hh%Mm%Ss", time.localtime()) + ".csv.gz"
 
-    def generate_data(self):
-        start = time.time()
+    def run(self):
         epoch_end = self.conf["date_end"]
         do_leq = self.conf["leq"]
         do_spectrum = self.conf["spectrum"]
         do_laeq = self.conf["laeq"]
+        timeout = 600000
+        if "timeout" in self.conf:
+            timeout = [int(a)*3600+int(b)*60+int(c) for a, b, c in [self.conf["timeout"].split(":")]][0]
         do_filter_start = "start_hour" in self.conf
         do_filter_end = "end_hour" in self.conf
         with gzip.open(self.csv_filename, "wt") as csv_f:
@@ -248,6 +265,8 @@ class Generate:
                     if resp.status_code != 200:
                         # This means something went wrong.
                         raise Networkerror([resp.status_code])
+                    if (time.time() - self.start_time) > timeout:
+                        raise(TimeoutError())
                     result = json.loads(resp.content)
                     hits = result["hits"]["hits"]
 
@@ -257,6 +276,9 @@ api.add_resource(QuerySensorList, '/sensors')
 api.add_resource(QueryFullFast, '/fast/<int:start_time>')  # Route_3
 
 api.add_resource(QueryGenerateData, '/generate')
+
+api.add_resource(QueryProcessInfo, '/process/<int:process_id>')
+
 
 
 class Networkerror(RuntimeError):

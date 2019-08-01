@@ -39,6 +39,11 @@
     <h1>Extraction des données des capteurs au format csv</h1>
     <ul>
         <li>
+            <label for="results">Results</label>
+            <div id="results" class="hot handsontable htColumnHeaders"></div>
+            <span>Fichiers csv</span>
+        </li>
+        <li>
             <label for="datetimes">Dates</label>
             <input type="text" name="datetimes"/>
             <span>Intervalles d'extraction des données</span>
@@ -114,6 +119,30 @@
   var stationTable = document.getElementById('stations');
 
   var dataTable = [];
+  var resultsTable = [];
+
+    var results = new Handsontable(document.getElementById('results'), {
+    data:resultsTable,
+    stretchH: 'all',
+    colHeaders: ['Process Id', 'Progress', 'Result url'],
+    columns: [
+      {
+        data: 'id',
+        type: 'text',
+      },
+      {
+        data: 'status',
+        type: 'text',
+      },
+      {
+        data: 'url',
+        renderer: 'html',
+        type: 'text',
+      },
+    ]
+  });
+
+
     var stations = new Handsontable(stationTable, {
     data:dataTable,
     stretchH: 'all',

@@ -100,6 +100,27 @@ function geoCoding() {
     }
 }
 
+function updateProcessStatus(process_id) {
+    $.ajax({
+      type: "GET",
+      url: "process/"+process_id,
+      success: function(response) {
+        $.each(resultsTable, function( key, val ) {
+            if(val["id"] == process_id) {
+                if("file_path" in response) {
+                    val["url"] = "<a href=\""+response["file_path"]+"\">Download</a>"
+                    val["status"] = "done"
+                    results.render();
+                } else {
+                    setTimeout(function(){ updateProcessStatus(process_id)}, 2000);
+                }
+            }
+        });
+      },
+      contentType : 'application/json',
+    });
+}
+
 function generate() {
     var dateStart = $('input[name="datetimes"]').data('daterangepicker').startDate.valueOf();
     var dateEnd = $('input[name="datetimes"]').data('daterangepicker').endDate.valueOf();
@@ -174,8 +195,13 @@ function generate() {
       url: "generate",
       data: JSON.stringify(jsonQuery),
       success: function(val) {
-
+        resultsTable.push({id:val["process_id"], status:"in progress", url:"not ready"});
+        results.render();
+        setTimeout(function(){ updateProcessStatus(val["process_id"])}, 2000);
       },
       contentType : 'application/json',
     });
+
+
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
 }
