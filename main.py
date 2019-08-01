@@ -172,7 +172,7 @@ class Generate(Process):
                 if do_laeq:
                     query["_source"].append("laeq")
 
-                if do_filter_start or do_filter_end:
+                if do_filter_start or do_filter_end or "week_day" in self.conf:
                     source = ""
                     params = {}
                     if do_filter_start:
@@ -182,6 +182,11 @@ class Generate(Process):
                         if start_minute > 0:
                             source += " && doc['timestamp'].value.minute >= params.minm"
                             params["minm"] = start_minute
+                    if "week_day" in self.conf:
+                        if len(source) > 0:
+                            source += " && "
+                        source += "params.week_day.contains(doc['timestamp'].value.getDayOfWeekEnum().getValue())"
+                        params["week_day"] = self.conf["week_day"]
                     if do_filter_end:
                         if len(source) > 0:
                             source += " && "
