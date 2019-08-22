@@ -18,6 +18,7 @@ cfg_file_path = os.path.join(app.root_path, 'appconfig.ini')
 if not os.path.exists(cfg_file_path):
     config["ELASTIC_SEARCH"] = {'URL': 'http://localhost:9200', 'USER': 'ESUSER', 'PASSWORD': 'ESPASSWORD'}
     config["SERVER"] = {'PORT': '5002'}
+    config["ADMIN"] = {'PUBKEY01': ''}
     config.write(cfg_file_path)
     os.chmod(cfg_file_path, 600)
 else:
@@ -35,6 +36,10 @@ def index():
 @app.route("/dump")
 def dump():
     return render_template('dump.html')
+
+@app.route("/trigger")
+def trigger():
+    return render_template('trigger.html')
 
 
 # Custom static data

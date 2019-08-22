@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <style>
+      .timediv {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+      text.mono {
+        font-size: 9pt;
+        font-family: Consolas, courier;
+        fill: #aaa;
+      }
+
+      text.axis-workweek {
+        fill: #000;
+      }
+
+      text.axis-worktime {
+        fill: #000;
+      }
+    .handsontable .head {
+        writing-mode: vertical-lr;
+        text-orientation: center;
+    }
+
+
+    </style>
+    <script type="text/javascript" src="static/jquery.min.js"></script>
+    <script type="text/javascript" src="static/moment.min.js"></script>
+    <script type="text/javascript" src="static/trigger.js"></script>
+    <script type="text/javascript" src="static/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="static/forms.css"/>
+    <script type="text/javascript" src="static/handsontable.min.js"></script>
+    <link type="text/css" href="static/handsontable.min.css" rel="stylesheet" media="screen">
+</head>
+<body>
+
+<div class="form-style-7">
+    <h1>Trigger configuration</h1>
+
+    <ul>
+        <li>
+            <label for="datetimes">Date</label>
+            <input type="text" name="datetimes"/>
+            <span>Trigger date interval</span>
+        </li>
+        <li>
+            <label for="startHour">Start hour</label>
+            <input type="time" name="startHour">
+            <span>Extraction start time filter</span>
+        </li>
+        <li>
+            <label for="endHour">Stop hour</label>
+            <input type="time" name="endHour">
+            <span>Extraction end time filter</span>
+        </li>
+        <li>
+            <label for="spectrum-frame">Spectrum template</label>
+            <div id="spectrum-frame">
+                <div id="spectrum" class="hot handsontable htColumnHeaders"></div>
+            </div>
+            <span>Spectral template conditioning the trigger</span>
+        </li>
+        <li>
+            <label for="cos_threshold">Cosine similarity</label>
+            <input type="number" name="cos_threshold" value="99.5" step="0.01">
+            <span>Cosine similarity threshold value</span>
+        </li>
+        <li>
+            <label for="minleq">Trigger minimum leq</label>
+            <input type="number" name="minleq" value="65">
+            <span>Trigger only when exceed provided spl value (dB)</span>
+        </li>
+        <li>
+            <label for="minlength">Cached length</label>
+            <input type="number" name="minlength" value="5">
+            <span>Minimum recording time before the trigger event (seconds)</span>
+        </li>
+        <li>
+            <label for="maxlength">Maximum length</label>
+            <input type="number" name="maxlength" value="10">
+            <span>Total recording time (seconds)</span>
+        </li>
+        <li>
+            <label for="triggerday">Trigger limitation</label>
+            <input type="number" name="triggerday" value="1">
+            <span>Maximum recordings per day and per sensor</span>
+        </li>
+        <li>
+            <label for="pubkey">Public key</label>
+            <input type="file" name="pubkey">
+            <span>Encryption key</span>
+        </li>
+        <li>
+            <input type="button" value="Configure" onclick="generate()">
+        </li>
+    </ul>
+</div>
+<script>
+    loadDateTime();
+      function cellSliders(instance, td, row, col, prop, value, cellProperties) {
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+        td.style.fontWeight = 'bold';
+        td.style.color = 'green';
+        td.style.background = '#CEC';
+      }
+    var fields = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500];
+    var resultsTable = [new Array(fields.length), new Array(fields.length).fill(1.0)];
+    var results = new Handsontable(document.getElementById('spectrum'), {
+    data:resultsTable,
+    colHeaders: fields,
+    colWidths: 45,
+    rowHeaderWidth: 80,
+    rowHeaders: ['Spectrum', 'Weight'],
+    afterGetColHeader: function(i, TH) {
+      TH.innerHTML = '<div class="head">' + TH.innerHTML + '</div>'
+    }
+  });
+
+</script>
+</body>
+</html>
