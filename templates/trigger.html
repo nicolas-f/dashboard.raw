@@ -33,8 +33,8 @@
     <script type="text/javascript" src="static/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/daterangepicker.css"/>
     <link rel="stylesheet" type="text/css" href="static/forms.css"/>
-    <script type="text/javascript" src="static/handsontable.min.js"></script>
-    <link type="text/css" href="static/handsontable.min.css" rel="stylesheet" media="screen">
+    <script type="text/javascript" src="static/handsontable.full.js"></script>
+    <link type="text/css" href="static/handsontable.full.css" rel="stylesheet" media="screen">
 </head>
 <body>
 
@@ -91,11 +91,11 @@
         </li>
         <li>
             <label for="pubkey">Public key</label>
-            <input type="file" name="pubkey">
+            <input type="file" name="pubkey"  accept=".pub,.pem" >
             <span>Encryption key</span>
         </li>
         <li>
-            <input type="button" value="Configure" onclick="generate()">
+            <input type="button" value="Configure" onclick="configure()">
         </li>
     </ul>
 </div>
@@ -109,11 +109,17 @@
       }
     var fields = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500];
     var resultsTable = [new Array(fields.length), new Array(fields.length).fill(1.0)];
+    var colOpts = [];
+    var i;
+    for (i = 0; i < fields.length; i++) {
+      colOpts.push({type : 'numeric',data : i});
+    }
     var results = new Handsontable(document.getElementById('spectrum'), {
     data:resultsTable,
     colHeaders: fields,
     colWidths: 45,
     rowHeaderWidth: 80,
+    columns: colOpts,
     rowHeaders: ['Spectrum', 'Weight'],
     afterGetColHeader: function(i, TH) {
       TH.innerHTML = '<div class="head">' + TH.innerHTML + '</div>'

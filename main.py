@@ -14,11 +14,13 @@ app = Flask(__name__)
 api = Api(app)
 
 config = configparser.ConfigParser()
+data = {}
 cfg_file_path = os.path.join(app.root_path, 'appconfig.ini')
 if not os.path.exists(cfg_file_path):
     config["ELASTIC_SEARCH"] = {'URL': 'http://localhost:9200', 'USER': 'ESUSER', 'PASSWORD': 'ESPASSWORD'}
-    config["SERVER"] = {'PORT': '5002'}
-    config["ADMIN"] = {'PUBKEY01': ''}
+    config["SERVER"] = {'PORT': '5002', 'PROTOCOL': 'https'}
+    # comma separated path of accepted public keys
+    config["ADMIN"] = {'PUBKEYS': 'path1,path2'}
     config.write(cfg_file_path)
     os.chmod(cfg_file_path, 600)
 else:
@@ -107,6 +109,12 @@ class QueryProcessInfo(Resource):
         else:
             return jsonify(error="Process not found")
 
+class QueryTrigger(Resource):
+    def get(self):
+        if "trigger" in data:
+            return Response(json.dumps(data["trigger"]), mimetype='application/json')
+        else:
+            return jsonify(error="no triggers")
 
 class Generate(Process):
     """
@@ -281,6 +289,25 @@ class Generate(Process):
                     hits = result["hits"]["hits"]
 
 
+class PostTriggerData(Resource):
+    def post(self):
+        json_data = request.get_json(force=True)
+        # Check public key
+        # config["ADMIN"] = {'PUBKEYS'
+        if "ADMIN" in config and 'PUBKEYS' in config["ADMIN"]:
+            for fpath in config["ADMIN"]['PUBKEYS'].split(","):
+                if os.path.exists(fpath):
+                    # Read local public key
+                    local_public_key = open(fpath).read()
+                    if json_data["file"] == local_public_key:
+                        data["trigger"] = json_data
+                        with open("trigger.json", "w") as f:
+                            f.write(json.dumps(json_data, indent=4))
+                        return jsonify(result='success')
+        # return process id
+        return jsonify(result='Provided public key is not authorized')
+
+
 api.add_resource(QuerySensorList, '/sensors')
 
 api.add_resource(QueryFullFast, '/fast/<int:start_time>')  # Route_3
@@ -289,6 +316,9 @@ api.add_resource(QueryGenerateData, '/generate')
 
 api.add_resource(QueryProcessInfo, '/process/<int:process_id>')
 
+api.add_resource(PostTriggerData, '/set-trigger')
+
+api.add_resource(QueryTrigger, '/get-trigger')
 
 
 class Networkerror(RuntimeError):
@@ -302,4 +332,7 @@ if __name__ == '__main__':
 
         serve(app, port=config['SERVER']['PORT'])
     except ImportError:
-        app.run(port=config['SERVER']['PORT'])
+        if config['SERVER']['PROTOCOL'] == 'https':
+            app.run(port=config['SERVER']['PORT'], ssl_context='adhoc')
+        else:
+            app.run(port=config['SERVER']['PORT'])
