@@ -5,4 +5,5 @@ venv
 generated/*.csv
 generated/*.gz
 generated/.~*
+trigger.json
 
