@@ -15,6 +15,9 @@ api = Api(app)
 
 config = configparser.ConfigParser()
 data = {}
+if os.path.exists("trigger.json"):
+    with open("trigger.json") as f:
+        data["trigger"] = json.loads(f.read())
 cfg_file_path = os.path.join(app.root_path, 'appconfig.ini')
 if not os.path.exists(cfg_file_path):
     config["ELASTIC_SEARCH"] = {'URL': 'http://localhost:9200', 'USER': 'ESUSER', 'PASSWORD': 'ESPASSWORD'}
