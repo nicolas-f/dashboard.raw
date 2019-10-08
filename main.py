@@ -47,6 +47,10 @@ def trigger():
     return render_template('trigger.html')
 
 
+@app.route("/player")
+def player():
+    return render_template('read_trigger.html')
+
 # Custom static data
 @app.route('/generated/<path:filename>')
 def custom_static(filename):
@@ -118,6 +122,44 @@ class QueryTrigger(Resource):
             return Response(json.dumps(data["trigger"]), mimetype='application/json')
         else:
             return jsonify(error="no triggers")
+
+class QuerySampleList(Resource):
+    def get(self, start_time, end_time):
+        # uncomment if no server available for dev purpose
+        # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
+        #    return  Response(f.read(), mimetype='application/json')
+        post_data = render_template('trigger_list.json', start_time=start_time, end_time=end_time)
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_samples/_search',
+                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
+
+
+class QuerySample(Resource):
+    def get(self, sample_id):
+        # uncomment if no server available for dev purpose
+        # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
+        #    return  Response(f.read(), mimetype='application/json')
+        post_data = render_template('fetch_samples.json', sample_id=sample_id)
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_samples/_search',
+                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
+
 
 class Generate(Process):
     """
@@ -323,6 +365,10 @@ api.add_resource(PostTriggerData, '/set-trigger')
 
 api.add_resource(QueryTrigger, '/get-trigger')
 
+api.add_resource(QuerySampleList, '/list-samples/<int:start_time>/<int:end_time>')
+
+api.add_resource(QuerySample, '/get-samples/<string:sample_id>')
+
 
 class Networkerror(RuntimeError):
     def __init__(self, arg):
@@ -336,6 +382,6 @@ if __name__ == '__main__':
         serve(app, port=config['SERVER']['PORT'])
     except ImportError:
         if config['SERVER']['PROTOCOL'] == 'https':
-            app.run(port=config['SERVER']['PORT'], ssl_context='adhoc')
+            app.run(port=config['SERVER']['PORT'], ssl_context=('certs/cert.pem', 'certs/key.pem'))
         else:
             app.run(port=config['SERVER']['PORT'])

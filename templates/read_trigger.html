@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trigger reader</title>
+
+    <script type="text/javascript" src="static/jquery.min.js"></script>
+    <script type="text/javascript" src="static/moment.min.js"></script>
+    <script type="text/javascript" src="static/trigger.js"></script>
+    <script type="text/javascript" src="static/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="static/handsontable.full.js"></script>
+    <link type="text/css" href="static/handsontable.full.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" type="text/css" href="static/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="static/forms.css"/>
+</head>
+<body>
+
+<div class="form-style-7">
+    <h1>Samples</h1>
+
+    <ul>
+        <li>
+            <label for="datetimes">Date</label>
+            <input type="text" name="datetimes"/>
+            <span>Trigger date interval</span>
+        </li>
+        <li>
+            <label for="privkey">Private key</label>
+            <input type="file" name="privkey"  accept=".priv,.pem" >
+            <span>Private key, not transferred</span>
+        </li>
+        <li>
+            <input type="button" value="Fetch" onclick="fetch()">
+        </li>
+        <li>
+            <label for="station-frame">Stations</label>
+            <div id="station-frame">
+                <div id="stations" class="hot handsontable htColumnHeaders"></div>
+            </div>
+            <span>Available samples</span>
+        </li>
+
+    </ul>
+</div>
+<script>
+    var downloadedData = [];
+    loadDateTimePlayer();
+    var stationTable = document.getElementById('stations');
+
+    var stations = new Handsontable(stationTable, {
+    data:downloadedData,
+    stretchH: 'all',
+    colHeaders: ['Producer', 'Date', 'download'],
+    columns: [
+      {
+        data: 'producerID',
+        readOnly: true,
+        editor: false
+      },
+      {
+        data: 'timestamp',
+        readOnly: true,
+        editor: false
+      },
+      {
+        data: 'id',
+        renderer: 'html',
+        type: 'text',
+        readOnly: true,
+        editor: false
+      },
+    ]
+  });
+</script>
+</body>
+</html>
