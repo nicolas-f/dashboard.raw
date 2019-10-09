@@ -108,13 +108,16 @@ function loadDateTimePlayer() {
       });
   }
 
-function base64StringToArrayBuffer(b64str) {
-  var byteStr = atob(b64str)
+function StrToArrayBuffer(byteStr) {
   var bytes = new Uint8Array(byteStr.length)
   for (var i = 0; i < byteStr.length; i++) {
     bytes[i] = byteStr.charCodeAt(i)
   }
   return bytes.buffer
+}
+
+function base64StringToArrayBuffer(b64str) {
+  return StrToArrayBuffer(atob(b64str));
 }
 
 function convertPemToBinary(pem) {
@@ -146,9 +149,90 @@ function importPrivateKey(pem) {
           name: "RSA-OAEP",
           hash: {name: "SHA-256"},
         },
-        false,
+        true,
         ["decrypt"]
       );
+}
+function stringToArrayBuffer(str){
+    var buf = new ArrayBuffer(str.length);
+    var bufView = new Uint8Array(buf);
+    for (var i=0, strLen=str.length; i<strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+
+function arrayBufferToString(str){
+    var byteArray = new Uint8Array(str);
+    var byteString = '';
+    for(var i=0; i < byteArray.byteLength; i++) {
+        byteString += String.fromCodePoint(byteArray[i]);
+    }
+    return byteString;
+}
+
+function encryptDataWithPublicKey(data, key) {
+    data = stringToArrayBuffer(data);
+    return window.crypto.subtle.encrypt(
+    {
+        name: "RSA-OAEP",
+        //label: Uint8Array([...]) //optional
+    },
+    key, //from generateKey or importKey above
+    data //ArrayBuffer of data you want to encrypt
+);
+}
+
+
+function decryptDataWithPrivateKey(data, key) {
+    data = stringToArrayBuffer(data);
+    return window.crypto.subtle.decrypt(
+        {
+            name: "RSA-OAEP",
+            //label: Uint8Array([...]) //optional
+        },
+        key, //from generateKey or importKey above
+        data //ArrayBuffer of data you want to encrypt
+    );
+}
+
+async function do_decrypt(jsonContent) {
+    const pem = await $('input[name="privkey"]')[0].files[0].text();
+    var encrypted = btoa(jsonContent.hits.hits[0]._source.samples);
+    privateKey = await importPrivateKey(pem);
+    // export private key to JWK
+    const jwk = await crypto.subtle.exportKey("jwk", privateKey);// remove private data from JWK
+    delete jwk.d;
+    delete jwk.dp;
+    delete jwk.dq;
+    delete jwk.q;
+    delete jwk.qi;
+    jwk.key_ops = ["encrypt", "wrapKey"];
+    // import public key
+    const publicKey = await crypto.subtle.importKey("jwk", jwk, { name: "RSA-OAEP",
+    hash: privateKey.algorithm.hash.name }, true, ["encrypt", "wrapKey"]);
+
+    let enc = new TextEncoder();
+    let encoded = enc.encode("hello");
+    ciphertext = await window.crypto.subtle.encrypt(
+      {
+        name: "RSA-OAEP"
+      },
+      publicKey,
+      encoded
+    );
+    console.log(ciphertext);
+
+    let decrypted = await window.crypto.subtle.decrypt(
+      {
+        name: "RSA-OAEP"
+      },
+      privateKey,
+      ciphertext
+    );
+
+    let dec = new TextDecoder();
+    console.log(dec.decode(decrypted));
 }
 
 function decrypt_and_download(sample_id) {
@@ -156,21 +240,7 @@ function decrypt_and_download(sample_id) {
       type: "GET",
       url: "get-samples/"+sample_id,
       success: function(jsonContent) {
-          $('input[name="privkey"]')[0].files[0].text().then(function(value) {
-              var encrypted = btoa(jsonContent.hits.hits[0]._source.samples);
-              // decrypt OAEP header part of encrypted message
-              importPrivateKey(value).then(function(privateKey){
-//                  window.crypto.subtle.encrypt(
-//                    {
-//                      name: "RSA-OAEP"
-//                    },
-//                    privateKey,
-//                    "test123"
-//                  );
-                  console.log(privateKey);
-                  //download(, sample_id+".ogg", "audio/ogg");
-                });
-          });
+            do_decrypt(jsonContent);
       },
       contentType : 'application/json',
     });
