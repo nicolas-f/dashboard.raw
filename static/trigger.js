@@ -1,6 +1,3 @@
-//download.js v4.21, by dandavis; 2008-2018. [MIT] see http://danml.com/download.html for tests/usage
-;(function(root,factory){typeof define=="function"&&define.amd?define([],factory):typeof exports=="object"?module.exports=factory():root.download=factory()})(this,function(){return function download(data,strFileName,strMimeType){var self=window,defaultMime="application/octet-stream",mimeType=strMimeType||defaultMime,payload=data,url=!strFileName&&!strMimeType&&payload,anchor=document.createElement("a"),toString=function(a){return String(a)},myBlob=self.Blob||self.MozBlob||self.WebKitBlob||toString,fileName=strFileName||"download",blob,reader;myBlob=myBlob.call?myBlob.bind(self):Blob,String(this)==="true"&&(payload=[payload,mimeType],mimeType=payload[0],payload=payload[1]);if(url&&url.length<2048){fileName=url.split("/").pop().split("?")[0],anchor.href=url;if(anchor.href.indexOf(url)!==-1){var ajax=new XMLHttpRequest;return ajax.open("GET",url,!0),ajax.responseType="blob",ajax.onload=function(e){download(e.target.response,fileName,defaultMime)},setTimeout(function(){ajax.send()},0),ajax}}if(/^data:([\w+-]+\/[\w+.-]+)?[,;]/.test(payload)){if(!(payload.length>2096103.424&&myBlob!==toString))return navigator.msSaveBlob?navigator.msSaveBlob(dataUrlToBlob(payload),fileName):saver(payload);payload=dataUrlToBlob(payload),mimeType=payload.type||defaultMime}else if(/([\x80-\xff])/.test(payload)){var i=0,tempUiArr=new Uint8Array(payload.length),mx=tempUiArr.length;for(i;i<mx;++i)tempUiArr[i]=payload.charCodeAt(i);payload=new myBlob([tempUiArr],{type:mimeType})}blob=payload instanceof myBlob?payload:new myBlob([payload],{type:mimeType});function dataUrlToBlob(strUrl){var parts=strUrl.split(/[:;,]/),type=parts[1],indexDecoder=strUrl.indexOf("charset")>0?3:2,decoder=parts[indexDecoder]=="base64"?atob:decodeURIComponent,binData=decoder(parts.pop()),mx=binData.length,i=0,uiArr=new Uint8Array(mx);for(i;i<mx;++i)uiArr[i]=binData.charCodeAt(i);return new myBlob([uiArr],{type:type})}function saver(url,winMode){if("download"in anchor)return anchor.href=url,anchor.setAttribute("download",fileName),anchor.className="download-js-link",anchor.innerHTML="downloading...",anchor.style.display="none",anchor.addEventListener("click",function(e){e.stopPropagation(),this.removeEventListener("click",arguments.callee)}),document.body.appendChild(anchor),setTimeout(function(){anchor.click(),document.body.removeChild(anchor),winMode===!0&&setTimeout(function(){self.URL.revokeObjectURL(anchor.href)},250)},66),!0;if(/(Version)\/(\d+)\.(\d+)(?:\.(\d+))?.*Safari\//.test(navigator.userAgent))return/^data:/.test(url)&&(url="data:"+url.replace(/^data:([\w\/\-\+]+)/,defaultMime)),window.open(url)||confirm("Displaying New Document\n\nUse Save As... to download, then click back to return to this page.")&&(location.href=url),!0;var f=document.createElement("iframe");document.body.appendChild(f),!winMode&&/^data:/.test(url)&&(url="data:"+url.replace(/^data:([\w\/\-\+]+)/,defaultMime)),f.src=url,setTimeout(function(){document.body.removeChild(f)},333)}if(navigator.msSaveBlob)return navigator.msSaveBlob(blob,fileName);if(self.URL)saver(self.URL.createObjectURL(blob),!0);else{if(typeof blob=="string"||blob.constructor===toString)try{return saver("data:"+mimeType+";base64,"+self.btoa(blob))}catch(y){return saver("data:"+mimeType+","+encodeURIComponent(blob))}reader=new FileReader,reader.onload=function(e){saver(this.result)},reader.readAsDataURL(blob)}return!0}});
-
 function loadDateTime() {
       $('input[name="datetimes"]').daterangepicker({
           "showISOWeekNumbers": true,
@@ -196,44 +193,68 @@ function decryptDataWithPrivateKey(data, key) {
     );
 }
 
+
 async function do_decrypt(jsonContent) {
     const pem = await $('input[name="privkey"]')[0].files[0].text();
-    var encrypted = btoa(jsonContent.hits.hits[0]._source.samples);
-    privateKey = await importPrivateKey(pem);
-    // export private key to JWK
-    const jwk = await crypto.subtle.exportKey("jwk", privateKey);// remove private data from JWK
-    delete jwk.d;
-    delete jwk.dp;
-    delete jwk.dq;
-    delete jwk.q;
-    delete jwk.qi;
-    jwk.key_ops = ["encrypt", "wrapKey"];
-    // import public key
-    const publicKey = await crypto.subtle.importKey("jwk", jwk, { name: "RSA-OAEP",
-    hash: privateKey.algorithm.hash.name }, true, ["encrypt", "wrapKey"]);
+    var encrypted = atob(jsonContent.hits.hits[0]._source.samples);
+    // convert a Forge certificate from PEM
+    const pki = forge.pki;
+    var privateKey = pki.decryptRsaPrivateKey(pem, $('input[name="pwd"]')[0].value);
+    let el = document.getElementById("error_panel");
+    if(privateKey == null) {
+        el.style.visibility = "visible";
+        el.innerHTML = "Invalid decryption key or password";
+    } else {
+        el.style.visibility = "hidden";
+    }
+    //var decrypted = privateKey.decrypt(encrypted.substring(0, 512), 'RSA-OAEP');
+    var header = 'z2ZrmqB7SiEtA2roZ3+oLxgxvoSpdK+/sfpUYNgAms8=';
+    var header_encrypted = 'kXnwAT1JNztfsWQw6wbNp+5EyTtsvupAw4CkHVhul5kN/cCv1+nYUN4Nlzgq/2fz5cv68uKLQu3bKGymskH00RLNScQhqm3NZfPKQW/BY3Cnl5mCXUbJJ0ddr9RiXwzREGJWZM6uNz2uqsVDAOy7AFVXL21rnzuAJHmed1nTRgOnmz+dBhdFFAC3MgT3nyCunbHI9RIBfID7+vPeZbr4yvXStIf+mej0+/PAAjXzuoaS1rhuXegjH6Y/ojZjYxzI2HN7HJVtLh8V8vNOtsCUuLxt81pxa2L1a08ODmK2PV9tyNmPbVX4A9AFEzmvUqARAkWUuIugul6cxvUaKc+yk8prRs/ehOe1xLombbO/Xs2ND2o0YJerrQmEgFu2i4GHxZ9KXyOoBQu11d42IuUM8O/AXPyJPjPfr+px24uDvgg2IGNK5IKOTI1B0FfuaHIgSNX6bHGhPod1fjOgB03kCoiYH9JuSUUqqv9CKcxmm+uvj6PQv6Dzmxsft00F4GIxU6yjaGtQ8o110Yg2XNAeIJyarPZ03byrwXtT2j0lw5sdooVFmzbuWs/7FaE0rT37OhXZ9tidxjgi6vzXs3EKwiQP3Dz99mAToY9D9B7t42+iq0Hg6ErtX6RbjdWAn1tw7dmFCucVC9aCTeKnk3v116KJtitSAJADJ49dr4EiwlA=';
+    var decrypted = privateKey.decrypt(atob(header_encrypted), 'RSA-OAEP');
 
-    let enc = new TextEncoder();
-    let encoded = enc.encode("hello");
-    ciphertext = await window.crypto.subtle.encrypt(
-      {
-        name: "RSA-OAEP"
-      },
-      publicKey,
-      encoded
-    );
-    console.log(ciphertext);
-
-    let decrypted = await window.crypto.subtle.decrypt(
-      {
-        name: "RSA-OAEP"
-      },
-      privateKey,
-      ciphertext
-    );
-
-    let dec = new TextDecoder();
-    console.log(dec.decode(decrypted));
+    console.log(btoa(decrypted));
 }
+
+//
+//async function do_decrypt(jsonContent) {
+//    const pem = await $('input[name="privkey"]')[0].files[0].text();
+//    var encrypted = atob(jsonContent.hits.hits[0]._source.samples);
+//    privateKey = await importPrivateKey(pem);
+//    // export private key to JWK
+//    const jwk = await crypto.subtle.exportKey("jwk", privateKey);// remove private data from JWK
+//    delete jwk.d;
+//    delete jwk.dp;
+//    delete jwk.dq;
+//    delete jwk.q;
+//    delete jwk.qi;
+//    jwk.key_ops = ["encrypt", "wrapKey"];
+//    // import public key
+//    const publicKey = await crypto.subtle.importKey("jwk", jwk, { name: "RSA-OAEP",
+//    hash: privateKey.algorithm.hash.name }, true, ["encrypt", "wrapKey"]);
+//
+//    let enc = new TextEncoder();
+//    let encoded = enc.encode("hello");
+//    ciphertext = await window.crypto.subtle.encrypt(
+//      {
+//        name: "RSA-OAEP"
+//      },
+//      publicKey,
+//      encoded
+//    );
+//    console.log(ciphertext);
+//    console.log(stringToArrayBuffer(encrypted.substring(0, 512)));
+//
+//    let decrypted = await window.crypto.subtle.decrypt(
+//      {
+//        name: "RSA-OAEP"
+//      },
+//      privateKey,
+//      stringToArrayBuffer(encrypted.substring(0, 512))
+//    );
+//
+//    let dec = new TextDecoder();
+//    console.log(dec.decode(decrypted));
+//}
 
 function decrypt_and_download(sample_id) {
     $.ajax({

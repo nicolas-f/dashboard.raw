@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Trigger reader</title>
 
+    <script type="text/javascript" src="static/forge.min.js"></script>
     <script type="text/javascript" src="static/jquery.min.js"></script>
     <script type="text/javascript" src="static/moment.min.js"></script>
     <script type="text/javascript" src="static/trigger.js"></script>
@@ -17,7 +18,9 @@
 
 <div class="form-style-7">
     <h1>Samples</h1>
-
+    <div id="error_panel" class="msg_error"  style="visibility: hidden;">
+        Invalid decryption key or password
+    </div>
     <ul>
         <li>
             <label for="datetimes">Date</label>
@@ -28,6 +31,11 @@
             <label for="privkey">Private key</label>
             <input type="file" name="privkey"  accept=".priv,.pem" >
             <span>Private key, not transferred</span>
+        </li>
+        <li>
+            <label for="pwd">Password</label>
+            <input type="password" name="pwd"/>
+            <span>Private key password, not transferred</span>
         </li>
         <li>
             <input type="button" value="Fetch" onclick="fetch()">
