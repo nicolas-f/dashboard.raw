@@ -9,6 +9,7 @@ import time
 import json
 import datetime
 import gzip
+import base64
 
 app = Flask(__name__)
 api = Api(app)
@@ -147,7 +148,7 @@ class QuerySample(Resource):
         # uncomment if no server available for dev purpose
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
-        post_data = render_template('fetch_samples.json', sample_id=sample_id)
+        post_data = render_template('fetch_samples.json', sample_id=base64.b64decode(sample_id).decode("utf-8"))
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_samples/_search',
                              # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],

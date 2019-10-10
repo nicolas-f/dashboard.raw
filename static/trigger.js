@@ -206,60 +206,26 @@ async function do_decrypt(jsonContent) {
         el.innerHTML = "Invalid decryption key or password";
     } else {
         el.style.visibility = "hidden";
+        var decrypted = privateKey.decrypt(encrypted.substring(0, 512), 'RSA-OAEP');
+        var aes_key = decrypted.substring(0, 16);
+        var iv = decrypted.substring(16, 32);
+        console.log("aeskey " + btoa(aes_key));
+        console.log("iv " + btoa(iv));
+        //('aes_key :', 'wJyLYu1QrppXkVr4VkiN2g==')
+        //('iv :', 'PclNb35dRhvq90Bvc9JjvA==')
+        var decipher = forge.cipher.createDecipher('AES-CBC', aes_key);
+        decipher.start({iv: iv});
+        decipher.update(forge.util.createBuffer(encrypted.substring(512)));
+        var result = decipher.finish(); // check 'result' for true/false
+        // outputs decrypted hex
+        download(decipher.output.data, "test.ogg", "audio/ogg");
     }
-    //var decrypted = privateKey.decrypt(encrypted.substring(0, 512), 'RSA-OAEP');
-    var header = 'z2ZrmqB7SiEtA2roZ3+oLxgxvoSpdK+/sfpUYNgAms8=';
-    var header_encrypted = 'kXnwAT1JNztfsWQw6wbNp+5EyTtsvupAw4CkHVhul5kN/cCv1+nYUN4Nlzgq/2fz5cv68uKLQu3bKGymskH00RLNScQhqm3NZfPKQW/BY3Cnl5mCXUbJJ0ddr9RiXwzREGJWZM6uNz2uqsVDAOy7AFVXL21rnzuAJHmed1nTRgOnmz+dBhdFFAC3MgT3nyCunbHI9RIBfID7+vPeZbr4yvXStIf+mej0+/PAAjXzuoaS1rhuXegjH6Y/ojZjYxzI2HN7HJVtLh8V8vNOtsCUuLxt81pxa2L1a08ODmK2PV9tyNmPbVX4A9AFEzmvUqARAkWUuIugul6cxvUaKc+yk8prRs/ehOe1xLombbO/Xs2ND2o0YJerrQmEgFu2i4GHxZ9KXyOoBQu11d42IuUM8O/AXPyJPjPfr+px24uDvgg2IGNK5IKOTI1B0FfuaHIgSNX6bHGhPod1fjOgB03kCoiYH9JuSUUqqv9CKcxmm+uvj6PQv6Dzmxsft00F4GIxU6yjaGtQ8o110Yg2XNAeIJyarPZ03byrwXtT2j0lw5sdooVFmzbuWs/7FaE0rT37OhXZ9tidxjgi6vzXs3EKwiQP3Dz99mAToY9D9B7t42+iq0Hg6ErtX6RbjdWAn1tw7dmFCucVC9aCTeKnk3v116KJtitSAJADJ49dr4EiwlA=';
-    var decrypted = privateKey.decrypt(atob(header_encrypted), 'RSA-OAEP');
-
-    console.log(btoa(decrypted));
 }
-
-//
-//async function do_decrypt(jsonContent) {
-//    const pem = await $('input[name="privkey"]')[0].files[0].text();
-//    var encrypted = atob(jsonContent.hits.hits[0]._source.samples);
-//    privateKey = await importPrivateKey(pem);
-//    // export private key to JWK
-//    const jwk = await crypto.subtle.exportKey("jwk", privateKey);// remove private data from JWK
-//    delete jwk.d;
-//    delete jwk.dp;
-//    delete jwk.dq;
-//    delete jwk.q;
-//    delete jwk.qi;
-//    jwk.key_ops = ["encrypt", "wrapKey"];
-//    // import public key
-//    const publicKey = await crypto.subtle.importKey("jwk", jwk, { name: "RSA-OAEP",
-//    hash: privateKey.algorithm.hash.name }, true, ["encrypt", "wrapKey"]);
-//
-//    let enc = new TextEncoder();
-//    let encoded = enc.encode("hello");
-//    ciphertext = await window.crypto.subtle.encrypt(
-//      {
-//        name: "RSA-OAEP"
-//      },
-//      publicKey,
-//      encoded
-//    );
-//    console.log(ciphertext);
-//    console.log(stringToArrayBuffer(encrypted.substring(0, 512)));
-//
-//    let decrypted = await window.crypto.subtle.decrypt(
-//      {
-//        name: "RSA-OAEP"
-//      },
-//      privateKey,
-//      stringToArrayBuffer(encrypted.substring(0, 512))
-//    );
-//
-//    let dec = new TextDecoder();
-//    console.log(dec.decode(decrypted));
-//}
 
 function decrypt_and_download(sample_id) {
     $.ajax({
       type: "GET",
-      url: "get-samples/"+sample_id,
+      url: "get-samples/"+btoa(sample_id),
       success: function(jsonContent) {
             do_decrypt(jsonContent);
       },
