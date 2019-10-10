@@ -59,10 +59,10 @@ function loadDateTimePlayer() {
           "timePickerSeconds": true,
           "autoApply": true,
           ranges: {
-              'Today': [moment().startOf('day'), moment()],
+              'Today': [moment().startOf('day'), moment().endOf('day')],
               'Yesterday': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
-              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+              'Last 7 Days': [moment().subtract(6, 'days'), moment().endOf('day')],
+              'Last 30 Days': [moment().subtract(29, 'days'), moment().endOf('day')],
               'This Month': [moment().startOf('month'), moment().endOf('month')],
               'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
           },
@@ -101,7 +101,7 @@ function loadDateTimePlayer() {
               "firstDay": 1
           },
           "startDate": moment().subtract(6, 'days').startOf('day'),
-          "endDate": moment()
+          "endDate": moment().endOf('day')
       });
   }
 
@@ -197,6 +197,8 @@ function decryptDataWithPrivateKey(data, key) {
 async function do_decrypt(jsonContent) {
     const pem = await $('input[name="privkey"]')[0].files[0].text();
     var encrypted = atob(jsonContent.hits.hits[0]._source.samples);
+    var tstamp = jsonContent.hits.hits[0]._source.timestamp;
+    var date = new Date(tstamp);
     // convert a Forge certificate from PEM
     const pki = forge.pki;
     var privateKey = pki.decryptRsaPrivateKey(pem, $('input[name="pwd"]')[0].value);
@@ -218,7 +220,8 @@ async function do_decrypt(jsonContent) {
         decipher.update(forge.util.createBuffer(encrypted.substring(512)));
         var result = decipher.finish(); // check 'result' for true/false
         // outputs decrypted hex
-        download(decipher.output.data, "test.ogg", "audio/ogg");
+        const fname = date.toLocaleDateString()+"_"+date.toLocaleTimeString()+".ogg";
+        download(decipher.output.data, fname, "audio/ogg");
     }
 }
 
