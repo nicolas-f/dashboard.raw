@@ -7,6 +7,18 @@
 	padding:10px;
 	font-family: Georgia, "Times New Roman", Times, serif;
 }
+.msg_error {
+    margin: 10px 0px;
+    padding:12px;
+    color: #D8000C;
+    background-color: #FFD2D2;
+}
+.msg_success {
+    margin: 10px 0px;
+    padding:12px;
+    color: #4F8A10;
+    background-color: #DFF2BF;
+}
 .form-style-7 h1{
 	display: block;
 	text-align: center;

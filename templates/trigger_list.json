@@ -1,0 +1,31 @@
+{
+  "_source": ["timestamp", "producerID"],
+    "sort": [
+        {
+            "timestamp": {
+                "order": "desc"
+            }
+        }
+    ],
+    "query": {
+    "bool": {
+      "must": [
+        {
+          "match_all": {}
+        },
+        {
+          "range": {
+            "timestamp": {
+              "gte": {{ start_time }},
+              "lte": {{ end_time }},
+              "format": "epoch_millis"
+            }
+          }
+        }
+      ],
+      "filter": [],
+      "should": [],
+      "must_not": []
+    }
+  }
+}
