@@ -286,7 +286,16 @@ function configure() {
     if(endHour != "") {
         jsonQuery["end_hour"] = endHour;
     }
-
+    var el = document.getElementById("error_panel");
+    var el2 = document.getElementById("info_panel");
+    if($('input[name="pubkey"]')[0].files.length==0) {
+        el.style.visibility = "visible";
+        el.innerHTML = "Please select the public encryption key";
+        $('html, body').animate({ scrollTop: 0 }, 'fast');
+    } else{
+        el.style.visibility = "hidden";
+        el2.style.visibility = "hidden";
+    }
     $('input[name="pubkey"]')[0].files[0].text().then(function(value) {
         jsonQuery["file"] = value;
 
@@ -295,7 +304,15 @@ function configure() {
           url: "set-trigger",
           data: JSON.stringify(jsonQuery),
           success: function(val) {
-            // TODO set message
+            if(val["result"] != 'success') {
+                el.style.visibility = "visible";
+                el.innerHTML = "Invalid public encryption key";
+                el2.style.visibility = "hidden";
+            } else{
+                el.style.visibility = "hidden";
+                el2.style.visibility = "visible";
+                el2.innerHTML = "Trigger set";
+            }
           },
           contentType : 'application/json',
         });
