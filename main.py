@@ -32,32 +32,6 @@ else:
 
 parser = reqparse.RequestParser()
 
-
-# a route where we will display a welcome message via an HTML template
-@app.route("/")
-def index():
-    return render_template('index.html')
-
-
-@app.route("/dump")
-def dump():
-    return render_template('dump.html')
-
-@app.route("/trigger")
-def trigger():
-    return render_template('trigger.html')
-
-
-@app.route("/player")
-def player():
-    return render_template('read_trigger.html')
-
-# Custom static data
-@app.route('/generated/<path:filename>')
-def custom_static(filename):
-    return send_from_directory("generated", filename)
-
-
 class QueryFullFast(Resource):
     def get(self, start_time):
         # uncomment if no server available for dev purpose
@@ -369,6 +343,30 @@ api.add_resource(QueryTrigger, '/get-trigger')
 api.add_resource(QuerySampleList, '/list-samples/<int:start_time>/<int:end_time>')
 
 api.add_resource(QuerySample, '/get-samples/<string:sample_id>')
+
+# a route where we will display a welcome message via an HTML template
+@app.route("/")
+def index():
+    return render_template('index.html')
+
+
+@app.route("/dump")
+def dump():
+    return render_template('dump.html')
+
+@app.route("/trigger")
+def trigger():
+    return render_template('trigger.html')
+
+
+@app.route("/player")
+def player():
+    return render_template('read_trigger.html')
+
+# Custom static data
+@app.route('/generated/<path:filename>')
+def custom_static(filename):
+    return send_from_directory("generated", filename)
 
 
 class Networkerror(RuntimeError):
