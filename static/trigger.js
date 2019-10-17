@@ -6,10 +6,11 @@ function loadDateTime() {
           "timePickerSeconds": true,
           "autoApply": true,
           ranges: {
+              'Today': [moment().startOf('day'), moment().endOf('day')],
               'Tomorrow': [moment().add(1, 'days').startOf('day'), moment().add(1, 'days').endOf('day')],
-              'Next 7 Days': [moment().add(1, 'days').startOf('day'), moment().add(6, 'days')],
-              'Next 30 Days': [moment().add(1, 'days').startOf('day'), moment().add(29, 'days')],
-              'This Month': [moment().add(1, 'days').startOf('day'), moment().endOf('month')],
+              'Next 7 Days': [moment().startOf('day'), moment().add(6, 'days')],
+              'Next 30 Days': [moment().startOf('day'), moment().add(29, 'days')],
+              'This Month': [moment().startOf('day'), moment().endOf('month')],
           },
           "locale": {
               "format": "MM/DD/YYYY HH:mm:ss",
@@ -45,7 +46,7 @@ function loadDateTime() {
               ],
               "firstDay": 1
           },
-          "startDate": moment().add(1, 'days').startOf('day'),
+          "startDate": moment().startOf('day'),
           "endDate": moment().add(1, 'days').endOf('day')
       });
 

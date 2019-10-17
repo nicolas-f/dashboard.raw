@@ -76,9 +76,9 @@
             <span>Cosine similarity threshold value</span>
         </li>
         <li>
-            <label for="minleq">Trigger minimum leq</label>
+            <label for="minleq">Trigger minimum laeq</label>
             <input type="number" name="minleq" value="65">
-            <span>Trigger only when exceed provided spl value (dB)</span>
+            <span>Trigger only when exceed provided spl value dB(A)</span>
         </li>
         <li>
             <label for="minlength">Cached length</label>
@@ -123,6 +123,8 @@
     var results = new Handsontable(document.getElementById('spectrum'), {
     data:resultsTable,
     colHeaders: fields,
+    minSpareRows: 0,
+    minSpareCols: 0,
     colWidths: 45,
     rowHeaderWidth: 80,
     columns: colOpts,
