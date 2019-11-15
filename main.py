@@ -37,7 +37,7 @@ class QueryFullFast(Resource):
         # uncomment if no server available for dev purpose
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
-        post_data = render_template('query.json', start_time=start_time, end_time=int(start_time) + 10e3)
+        post_data = render_template('query.json', start_time=int(start_time), end_time=int(start_time) + 10e3)
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search',
                              # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
@@ -58,6 +58,23 @@ class QuerySensorList(Resource):
     def get(self):
         post_data = render_template('query_sensor_list.json')
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_sensorlocation/_search',
+                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
+
+
+
+class QuerySensorRecordCount(Resource):
+    def get(self, start_time, end_time):
+        post_data = render_template('query_sensor_record_count.json', start_time=int(start_time), end_time=int(end_time))
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_slow/_search',
                              # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
                                                 config['ELASTIC_SEARCH']['PASSWORD']),
@@ -103,7 +120,7 @@ class QuerySampleList(Resource):
         # uncomment if no server available for dev purpose
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
-        post_data = render_template('trigger_list.json', start_time=start_time, end_time=end_time)
+        post_data = render_template('trigger_list.json', start_time=int(start_time), end_time=int(end_time))
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_samples/_search',
                              # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
@@ -330,6 +347,8 @@ class PostTriggerData(Resource):
 
 api.add_resource(QuerySensorList, '/sensors')
 
+api.add_resource(QuerySensorRecordCount, '/sensors-record-count/<int:start_time>/<int:end_time>')
+
 api.add_resource(QueryFullFast, '/fast/<int:start_time>')  # Route_3
 
 api.add_resource(QueryGenerateData, '/generate')
@@ -354,6 +373,7 @@ def index():
 def dump():
     return render_template('dump.html')
 
+
 @app.route("/trigger")
 def trigger():
     return render_template('trigger.html')
@@ -367,6 +387,11 @@ def player():
 @app.route('/generated/<path:filename>')
 def custom_static(filename):
     return send_from_directory("generated", filename)
+
+
+@app.route("/status")
+def status():
+    return render_template('status.html')
 
 
 class Networkerror(RuntimeError):
