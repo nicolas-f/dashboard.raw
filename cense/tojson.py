@@ -85,6 +85,7 @@ for row in data.split("\n"):
         sensor["map_id_sensor"] = columns[0]
         sensor["box_id_sensor"] = int(columns[1])
         sensor["mac"] = columns[2]
+        sensor["esid"] = "urn:osh:sensor:noisemonitoring:" + columns[2].replace(":", "-")
         sensor["connected_radio_count"] = int(columns[3]) if columns[3] != "" else 0
         sensor["lorient1_id_sensor"] = columns[4]
         sensor["lorient2_id_sensor"] = columns[5]

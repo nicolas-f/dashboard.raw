@@ -74,7 +74,7 @@ class QuerySensorList(Resource):
 class QuerySensorRecordCount(Resource):
     def get(self, start_time, end_time):
         post_data = render_template('query_sensor_record_count.json', start_time=int(start_time), end_time=int(end_time))
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_slow/_search',
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
                              # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
                                                 config['ELASTIC_SEARCH']['PASSWORD']),
@@ -366,7 +366,7 @@ api.add_resource(QuerySample, '/get-samples/<string:sample_id>')
 # a route where we will display a welcome message via an HTML template
 @app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template('status.html')
 
 
 @app.route("/dump")
@@ -389,9 +389,9 @@ def custom_static(filename):
     return send_from_directory("generated", filename)
 
 
-@app.route("/status")
+@app.route("/spectrogram")
 def status():
-    return render_template('status.html')
+    return render_template('spectrogram.html')
 
 
 class Networkerror(RuntimeError):
