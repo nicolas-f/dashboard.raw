@@ -344,6 +344,18 @@ class PostTriggerData(Resource):
         # return process id
         return jsonify(result='Provided public key is not authorized')
 
+# Produced from 4G Router script
+# /bin/echo "`/sbin/ifconfig`;`/bin/cat /var/dhcp/dhcpd.leases`" | /usr/bin/curl -X POST --header "Content-Type: text/html" -d @- --insecure https://localhost:4430/nodeup
+class PostNodeUp(Resource):
+    def post(self):
+        node_data = request.data.decode("utf-8")
+        with open("nodeup.log", "a+") as f:
+            f.write(node_data+"\n")
+        # return process id
+        return jsonify(result='ok')
+
+
+api.add_resource(PostNodeUp, '/nodeup')
 
 api.add_resource(QuerySensorList, '/sensors')
 

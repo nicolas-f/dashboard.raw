@@ -6,4 +6,4 @@ generated/*.csv
 generated/*.gz
 generated/.~*
 trigger.json
-
+*.log
