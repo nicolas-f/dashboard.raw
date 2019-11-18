@@ -8,10 +8,7 @@ function getStations(lmap, sensorsLayer) {
       $.each( data, function( key, val ) {
         var lat = val.lat;
         var lon = val.long;
-        var style = {data: val, title:"id: "+val.esid+"\nlocal ip: 192.168.1."+val.box_id_sensor+"\n4g id: "+val["4g_router_id"], icon: L.divIcon({
-            className: 'sensorOk',
-            iconSize: [5, 5]
-        })};
+        var style = {data: val, title:"id: "+val.esid+"\nlocal ip: 192.168.1."+val.box_id_sensor+"\n4g id: "+val["4g_router_id"], icon: greyIcon};
         sensorsLayer.addLayer(L.marker([lat, lon], style));
         minLat = Math.min(minLat, lat);
         minLong = Math.min(minLong, lon);
@@ -42,13 +39,12 @@ function getStationsRecordCount(lmap, sensorsLayer) {
      sensorsLayer.eachLayer(function(val) {
             var icon = val.options.icon;
             if(!sensors.has(val.options.data.esid)) {
-                icon.options.className = 'sensorMissing';
+                val.setIcon(redIcon);
             } else if(sensors.get(val.options.data.esid) != expected_records) {
-                icon.options.className = 'sensorFault';
+                val.setIcon(yellowIcon);
             } else {
-                icon.options.className = 'sensorOk';
+                val.setIcon(greenIcon);
             }
-            val.setIcon(icon);
       });
     });
   }
