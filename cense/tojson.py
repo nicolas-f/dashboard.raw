@@ -27,18 +27,18 @@ p0250	68	B8:27:EB:EA:EB:EA		2694	1LECL 15		8	2912	C16	47.74832	-3.36526			4 m
 p0260	25	B8:27:EB:52:F4:03		2692	1LECL 17		8	2912	C16	47.74806	-3.3651			4 m	4 m	
 p0270	38	B8:27:EB:74:92:77	1	2691	1LECL 19		8	2912	C16	47.7479	-3.36495				4 m	
 p0280	42	B8:27:EB:1F:AB:9F	1	2678	1FAO 1		8	2912	C16	47.74782	-3.36477				4 m	
-p0290	57	B8:27:EB:4D:21:0D		3264	non communiqué			3481	Ferry	47.74743	-3.36429				4 m	CITYBOX 29
-p0300	62	B8:27:EB:A9:7C:AC	1	3209	non communiqué			3481	Ferry	47.74718	-3.36378				4 m	CITYBOX ? Caméra sur mât
-p0310	41	B8:27:EB:22:08:E9	1	3193	non communiqué			3481	Ferry	47.74688	-3.36295				4 m	CITYBOX 25
-p0320	2	B8:27:EB:49:EE:33		3195	non communiqué			3481	Ferry	47.74668	-3.36244				4 m	CITYBOX 24
-p0330	60	B8:27:EB:EE:CC:15		3188	non communiqué			3481	Ferry	47.74639	-3.36176				4 m	CITYBOX 23
-p0340	65	B8:27:EB:E8:E1:CD		Information inconnue	non communiqué			3481	Ferry	47.7463	-3.36144				4 m	CITYBOX 21
-p0350	14	B8:27:EB:B1:CE:D8	1	3181	non communiqué			3481	Ferry	47.74606	-3.361				4 m	CITYBOX 18
-p0360	18	B8:27:EB:63:C0:D3	1	3179	non communiqué			3481	Ferry	47.74596	-3.3606				4 m	CITYBOX 19
-p0370	16	B8:27:EB:D8:7C:A3		3360	non communiqué			non communiqué	Ferry	47.74586	-3.36333				4 m	CITYBOX 5
-p0380	43	B8:27:EB:8A:11:13		Information inconnue	non communiqué			non communiqué	Ferry	47.74604	-3.36378					
-p0390	22	B8:27:EB:C8:21:C1		Information inconnue	non communiqué			non communiqué	Ferry	47.74644	-3.36473				4 m	CITYBOX ? Non raccordé (Porte fusible ouvert cramé)
-p0400	35	B8:27:EB:1A:0B:6C		Information inconnue	non communiqué			non communiqué	Ferry	47.7468	-3.36572				4 m	CITYBOX 11
+p0290	57	B8:27:EB:4D:21:0D		3264	non communiqué		4	3481	Ferry	47.74743	-3.36429				4 m	CITYBOX 29
+p0300	62	B8:27:EB:A9:7C:AC	1	3209	non communiqué		4	3481	Ferry	47.74718	-3.36378				4 m	CITYBOX ? Caméra sur mât
+p0310	41	B8:27:EB:22:08:E9	1	3193	non communiqué		4	3481	Ferry	47.74688	-3.36295				4 m	CITYBOX 25
+p0320	2	B8:27:EB:49:EE:33		3195	non communiqué		4	3481	Ferry	47.74668	-3.36244				4 m	CITYBOX 24
+p0330	60	B8:27:EB:EE:CC:15		3188	non communiqué		4	3481	Ferry	47.74639	-3.36176				4 m	CITYBOX 23
+p0340	65	B8:27:EB:E8:E1:CD		Information inconnue	non communiqué		4	3481	Ferry	47.7463	-3.36144				4 m	CITYBOX 21
+p0350	14	B8:27:EB:B1:CE:D8	1	3181	non communiqué		4	3481	Ferry	47.74606	-3.361				4 m	CITYBOX 18
+p0360	18	B8:27:EB:63:C0:D3	1	3179	non communiqué		4	3481	Ferry	47.74596	-3.3606				4 m	CITYBOX 19
+p0370	16	B8:27:EB:D8:7C:A3		3360	non communiqué		4	non communiqué	Ferry	47.74586	-3.36333				4 m	CITYBOX 5
+p0380	43	B8:27:EB:8A:11:13		Information inconnue	non communiqué		4	non communiqué	Ferry	47.74604	-3.36378					
+p0390	22	B8:27:EB:C8:21:C1		Information inconnue	non communiqué		4	non communiqué	Ferry	47.74644	-3.36473				4 m	CITYBOX ? Non raccordé (Porte fusible ouvert cramé)
+p0400	35	B8:27:EB:1A:0B:6C		Information inconnue	non communiqué		4	non communiqué	Ferry	47.7468	-3.36572				4 m	CITYBOX 11
 p0410	69	B8:27:EB:22:C0:63		2832	2BRIA 19A		10	2997	Comédie	47.74857	-3.36417				4 m	
 p0420	11	B8:27:EB:9A:BA:D5	1	2834	2BRIA 18A		10	2997	Comédie	47.74849	-3.36397				4 m	
 p0430	29	B8:27:EB:7B:E0:EE	1	2836	2BRIA 17A		10	2997	Comédie	47.74839	-3.36379				4 m	
@@ -76,6 +76,7 @@ p0740	8	B8:27:EB:13:A8:0F		1874	1LAEN 7		2	2030	poterie	47.75794	-3.35639				4 m
 p0750	23	B8:27:EB:38:BB:11		1871	1LAEN 11		2	2030	poterie	47.75832	-3.35732				4 m	
 p0760	48	B8:27:EB:73:9E:B6		1867	1LAEN 15		2	2030	poterie	47.75848	-3.35833				4 m	
 p0770	66	B8:27:EB:99:8A:A9			1LAEN 21	1868	2	2030	poterie	47.75844	-3.35933				4 m	
+p0780				Information inconnue	Information inconnue			non communiqué		47.74398	-3.35072					
 """
 jsondata = []
 for row in data.split("\n"):

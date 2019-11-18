@@ -15,39 +15,36 @@
         h1 {
             text-align: center;
         }
-
-        div.sensorOk {
-            border-color: green;
-            border-radius: 3px;
-            border-style: solid;
-            border-width: 1px;
-            background-color: green;
-            width:5px;
-            height:5px;
-        }
-        div.sensorFault {
-            background-color: yellow;
-            border-color: yellow;
-            border-radius: 3px;
-            border-style: solid;
-            border-width: 1px;
-            width:5px;
-            height:5px;
-        }
-        div.sensorMissing {
-            background-color: red;
-            border-color: red;
-            border-radius: 3px;
-            border-style: solid;
-            border-width: 1px;
-            width:5px;
-            height:5px;
-        }
+    .info {
+         padding: 6px 8px;
+         font: 14px/16px Arial, Helvetica, sans-serif;
+         background: white;
+         background: rgba(255,255,255,0.8);
+         box-shadow: 0 0 15px rgba(0,0,0,0.2);
+         border-radius: 5px;
+    }
+     .info h4 {
+         margin: 0 0 5px;
+         color: #777;
+    }
+     .legend {
+         text-align: left;
+         line-height: 18px;
+         color: #555;
+    }
+     .legend i {
+         width: 18px;
+         height: 18px;
+         float: left;
+         margin-right: 8px;
+         opacity: 0.7;
+    }
     </style>
     <script type="text/javascript" src="static/jquery.min.js"></script>
     <script type="text/javascript" src="static/moment.min.js"></script>
-    <script type="text/javascript" src="static/status.js"></script>
     <script type="text/javascript" src="static/leaflet/leaflet.js"></script>
+    <script type="text/javascript" src="static/leaflet/leaflet-color-markers.js"></script>
+    <script type="text/javascript" src="static/status.js"></script>
     <link rel="stylesheet" type="text/css" href="static/forms.css"/>
     <link rel="stylesheet" type="text/css" href="static/leaflet/leaflet.css">
     <script type="text/javascript" src="static/handsontable.full.js"></script>
@@ -72,6 +69,39 @@
     sensors.addTo(lmap);
 
     getStations(lmap, sensors);
+
+    var legend = L.control({position: 'bottomright'});
+
+function getColor(d) {
+    return d > 1000 ? '#800026' :
+           d > 500  ? '#BD0026' :
+           d > 200  ? '#E31A1C' :
+           d > 100  ? '#FC4E2A' :
+           d > 50   ? '#FD8D3C' :
+           d > 20   ? '#FEB24C' :
+           d > 10   ? '#FED976' :
+                      '#FFEDA0';
+}
+
+    legend.onAdd = function (lmap) {
+        var div = L.DomUtil.create('div', 'info legend'),
+        labels = ['Online', 'Missing values', 'Offline'],
+        icons = [greenIcon, yellowIcon, redIcon];
+
+
+        // loop through our density intervals and generate a label with a colored square for each interval
+        div.innerHTML += "2 minutes delayed status map<br/>";
+        for (var i = 0; i < icons.length; i++) {
+            div.innerHTML += '<i ><img style="max-height:100%;" src="'+icons[i].options.iconUrl+'"/></i>'+labels[i];
+            if(i < icons.length - 1) {
+                div.innerHTML += '<br/>';
+            }
+        }
+
+        return div;
+    };
+
+    legend.addTo(lmap);
 </script>
 </body>
 </html>
