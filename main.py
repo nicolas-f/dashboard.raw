@@ -350,6 +350,10 @@ class PostNodeUp(Resource):
     def post(self):
         node_data = request.data.decode("utf-8")
         with open("nodeup.log", "a+") as f:
+            f.write(request.headers.get('X-Forwarded-For'))
+            f.write(",")
+            f.write(time.strftime("%b %d %Y %H:%M:%S", time.localtime()))
+            f.write(",")
             f.write(node_data+"\n")
         # return process id
         return jsonify(result='ok')

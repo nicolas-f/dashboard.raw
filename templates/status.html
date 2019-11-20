@@ -2,95 +2,20 @@
 <meta charset="utf-8">
 <html>
 <head>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-
-        #mapid {
-            min-height: 100%;
-        }
-
-        h1 {
-            text-align: center;
-        }
-    .info {
-         padding: 6px 8px;
-         font: 14px/16px Arial, Helvetica, sans-serif;
-         background: white;
-         background: rgba(255,255,255,0.8);
-         box-shadow: 0 0 15px rgba(0,0,0,0.2);
-         border-radius: 5px;
-    }
-     .info h4 {
-         margin: 0 0 5px;
-         color: #777;
-    }
-     .legend {
-         text-align: left;
-         line-height: 18px;
-         color: #555;
-    }
-     .legend i {
-         width: 18px;
-         height: 18px;
-         float: left;
-         margin-right: 8px;
-         opacity: 0.7;
-    }
-    </style>
+    <link rel="stylesheet" type="text/css" href="static/status.css"/>
     <script type="text/javascript" src="static/jquery.min.js"></script>
     <script type="text/javascript" src="static/moment.min.js"></script>
     <script type="text/javascript" src="static/leaflet/leaflet.js"></script>
     <script type="text/javascript" src="static/leaflet/leaflet-color-markers.js"></script>
-    <script type="text/javascript" src="static/status.js"></script>
     <link rel="stylesheet" type="text/css" href="static/forms.css"/>
     <link rel="stylesheet" type="text/css" href="static/leaflet/leaflet.css">
     <script type="text/javascript" src="static/handsontable.full.js"></script>
     <link type="text/css" href="static/handsontable.full.css" rel="stylesheet" media="screen">
+    <script type="text/javascript" src="static/status.js" async></script>
 </head>
 <body>
 <div id="mapid" class="mapid"></div>
 <script>
-
-	var lmap = L.map('mapid').setView([47.7456, -3.3687], 16);
-
-	var sensors = L.layerGroup();
-
-	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-		maxZoom: 18,
-		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-		id: 'mapbox.streets'
-	}).addTo(lmap);
-
-    sensors.addTo(lmap);
-
-    getStations(lmap, sensors);
-
-    var legend = L.control({position: 'bottomright'});
-
-    legend.onAdd = function (lmap) {
-        var div = L.DomUtil.create('div', 'info legend'),
-        labels = ['Online', 'Missing values', 'Offline'],
-        icons = [greenIcon, yellowIcon, redIcon];
-
-
-        // loop through our density intervals and generate a label with a colored square for each interval
-        div.innerHTML += "2 minutes delayed status map<br/>";
-        for (var i = 0; i < icons.length; i++) {
-            div.innerHTML += '<i ><img style="max-height:100%;" src="'+icons[i].options.iconUrl+'"/></i>'+labels[i];
-            if(i < icons.length - 1) {
-                div.innerHTML += '<br/>';
-            }
-        }
-
-        return div;
-    };
-
-    legend.addTo(lmap);
 </script>
 </body>
 </html>

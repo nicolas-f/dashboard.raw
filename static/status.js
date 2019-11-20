@@ -40,7 +40,7 @@ function getStationsRecordCount(lmap, sensorsLayer) {
             var icon = val.options.icon;
             if(!sensors.has(val.options.data.esid)) {
                 val.setIcon(redIcon);
-            } else if(sensors.get(val.options.data.esid) != expected_records) {
+            } else if(sensors.get(val.options.data.esid) < expected_records - 1) {
                 val.setIcon(yellowIcon);
             } else {
                 val.setIcon(greenIcon);
@@ -48,3 +48,42 @@ function getStationsRecordCount(lmap, sensorsLayer) {
       });
     });
   }
+
+
+var lmap = L.map('mapid').setView([47.7456, -3.3687], 16);
+
+var sensors = L.layerGroup();
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+    maxZoom: 18,
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    id: 'mapbox.streets'
+}).addTo(lmap);
+
+sensors.addTo(lmap);
+
+getStations(lmap, sensors);
+
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (lmap) {
+    var div = L.DomUtil.create('div', 'info legend'),
+    labels = ['Online', 'Missing values', 'Offline'],
+    icons = [greenIcon, yellowIcon, redIcon];
+
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    div.innerHTML += "2 minutes delayed status map<br/>";
+    for (var i = 0; i < icons.length; i++) {
+        div.innerHTML += '<i ><img style="max-height:100%;" src="'+icons[i].options.iconUrl+'"/></i>'+labels[i];
+        if(i < icons.length - 1) {
+            div.innerHTML += '<br/>';
+        }
+    }
+
+    return div;
+};
+
+legend.addTo(lmap);
