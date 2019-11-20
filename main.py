@@ -348,7 +348,7 @@ class PostTriggerData(Resource):
 # /bin/echo "`/sbin/ifconfig`;`/bin/cat /var/dhcp/dhcpd.leases`" | /usr/bin/curl -X POST --header "Content-Type: text/html" -d @- --insecure https://localhost:4430/nodeup
 class PostNodeUp(Resource):
     def post(self):
-        node_data = request.data.decode("utf-8")
+        node_data = request.data.decode("utf-8").replace("?", "\n")
         with open("nodeup.log", "a+") as f:
             f.write(request.headers.get('X-Forwarded-For'))
             f.write(",")
