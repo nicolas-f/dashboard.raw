@@ -10,6 +10,7 @@ import json
 import datetime
 import gzip
 import base64
+import re
 
 app = Flask(__name__)
 api = Api(app)
@@ -344,17 +345,47 @@ class PostTriggerData(Resource):
         # return process id
         return jsonify(result='Provided public key is not authorized')
 
+def parseRouterCall(data):
+    router_infos = {"clients": set()}
+    p = re.compile(r'([0-9a-f]{2}(?::[0-9a-f]{2}){5})', re.IGNORECASE)
+    for row in data.split("\n"):
+        if "ether" in row:
+            mac_adress = re.findall(p, row)[0]
+            router_infos["clients"].add(mac_adress)
+        elif ":" in row:
+            mac_adress = re.findall(p, row)[0]
+            router_infos["mac"] = mac_adress
+            router_infos["online"] = time.mktime(time.strptime(row.split(",")[1], "%b %d %Y %H:%M:%S"))
+    router_infos["clients"] = list(router_infos["clients"])
+    return router_infos
+
+
 # Produced from 4G Router script
-# /bin/echo "`/sbin/ifconfig`;`/bin/cat /var/dhcp/dhcpd.leases`" | /usr/bin/curl -X POST --header "Content-Type: text/html" -d @- --insecure https://localhost:4430/nodeup
+# /bin/echo "`/bin/cat /sys/class/net/eth0/address; /sbin/arp`" | /usr/bin/curl -X POST --header "Content-Type: text/html" -d @- --insecure https://localhost:4430/nodeup
 class PostNodeUp(Resource):
     def post(self):
         node_data = request.data.decode("utf-8").replace("?", "\n")
+        parsed_data = parseRouterCall(node_data)
         with open("nodeup.log", "a+") as f:
-            f.write(request.headers.get('X-Forwarded-For'))
-            f.write(",")
+            if 'X-Forwarded-For' in request.headers:
+                f.write(request.headers.get('X-Forwarded-For'))
+                f.write(",")
             f.write(time.strftime("%b %d %Y %H:%M:%S", time.localtime()))
             f.write(",")
             f.write(node_data+"\n")
+        # Update configuration file
+        json_data = []
+        updated = False
+        with open("static/routers.json", "r") as f_read:
+            json_data = json.load(f_read)
+            for router in json_data:
+                if router["mac"].upper() == parsed_data["mac"].upper():
+                    for k in parsed_data:
+                        router[k] = parsed_data[k]
+                    updated = True
+        if updated:
+            with open("static/routers.json", "w") as f_write:
+                f_write.write(json.dumps(json_data, indent=2))
         # return process id
         return jsonify(result='ok')
 
