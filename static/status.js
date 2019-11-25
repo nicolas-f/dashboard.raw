@@ -24,6 +24,28 @@ function getStations(lmap, sensorsLayer) {
     });
   }
 
+function getRouters(lmap, routersLayer) {
+    $.getJSON( "static/routers.json", function( data ) {
+      var minLat = 90;
+      var maxLat = -90;
+      var minLong = 180;
+      var maxLong = -180;
+      $.each( data, function( key, val ) {
+        var lat = val.lat;
+        var lon = val.long;
+        var style = {data: val, title:"id: "+val.id+"\n4g id: "+val["4g_router_id"], icon: redCabinetIcon};
+        routersLayer.addLayer(L.marker([lat, lon], style));
+        minLat = Math.min(minLat, lat);
+        minLong = Math.min(minLong, lon);
+        maxLat = Math.max(maxLat, lat);
+        maxLong = Math.max(maxLong, lon);
+      });
+      // Set extent to sensors
+      if(minLat < maxLat && minLong < maxLong) {
+        lmap.fitBounds([ [minLat, minLong], [maxLat, maxLong] ]);
+      }
+    });
+  }
 
 function getStationsRecordCount(lmap, sensorsLayer) {
     var start_time = moment().subtract(14, 'minutes').valueOf();
@@ -53,6 +75,7 @@ function getStationsRecordCount(lmap, sensorsLayer) {
 var lmap = L.map('mapid').setView([47.7456, -3.3687], 16);
 
 var sensors = L.layerGroup();
+var routers = L.layerGroup();
 
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
     maxZoom: 18,
@@ -63,8 +86,10 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
 }).addTo(lmap);
 
 sensors.addTo(lmap);
+routers.addTo(lmap);
 
 getStations(lmap, sensors);
+getRouters(lmap, routers);
 
 var legend = L.control({position: 'bottomright'});
 
