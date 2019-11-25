@@ -24,6 +24,20 @@ function getStations(lmap, sensorsLayer) {
     });
   }
 
+function getRouters(lmap, routersLayer) {
+    $.getJSON( "static/routers.json", function( data ) {
+      $.each( data, function( key, val ) {
+        var lat = val.lat;
+        var lon = val.long;
+        var cabinetIcon = redCabinetIcon;
+        if("online" in val && moment().subtract(25, 'hours').valueOf() / 1000 < val.online) {
+            cabinetIcon = greenCabinetIcon;
+        }
+        var style = {data: val, title:"id: "+val.id+"\n4g id: "+val["4g_router_id"], icon: cabinetIcon};
+        routersLayer.addLayer(L.marker([lat, lon], style));
+      });
+    });
+  }
 
 function getStationsRecordCount(lmap, sensorsLayer) {
     var start_time = moment().subtract(14, 'minutes').valueOf();
@@ -53,6 +67,7 @@ function getStationsRecordCount(lmap, sensorsLayer) {
 var lmap = L.map('mapid').setView([47.7456, -3.3687], 16);
 
 var sensors = L.layerGroup();
+var routers = L.layerGroup();
 
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
     maxZoom: 18,
@@ -63,8 +78,10 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
 }).addTo(lmap);
 
 sensors.addTo(lmap);
+routers.addTo(lmap);
 
 getStations(lmap, sensors);
+getRouters(lmap, routers);
 
 var legend = L.control({position: 'bottomright'});
 
