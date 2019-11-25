@@ -26,24 +26,16 @@ function getStations(lmap, sensorsLayer) {
 
 function getRouters(lmap, routersLayer) {
     $.getJSON( "static/routers.json", function( data ) {
-      var minLat = 90;
-      var maxLat = -90;
-      var minLong = 180;
-      var maxLong = -180;
       $.each( data, function( key, val ) {
         var lat = val.lat;
         var lon = val.long;
-        var style = {data: val, title:"id: "+val.id+"\n4g id: "+val["4g_router_id"], icon: redCabinetIcon};
+        var cabinetIcon = redCabinetIcon;
+        if("online" in val && moment().subtract(25, 'hours').valueOf() / 1000 < val.online) {
+            cabinetIcon = greenCabinetIcon;
+        }
+        var style = {data: val, title:"id: "+val.id+"\n4g id: "+val["4g_router_id"], icon: cabinetIcon};
         routersLayer.addLayer(L.marker([lat, lon], style));
-        minLat = Math.min(minLat, lat);
-        minLong = Math.min(minLong, lon);
-        maxLat = Math.max(maxLat, lat);
-        maxLong = Math.max(maxLong, lon);
       });
-      // Set extent to sensors
-      if(minLat < maxLat && minLong < maxLong) {
-        lmap.fitBounds([ [minLat, minLong], [maxLat, maxLong] ]);
-      }
     });
   }
 
