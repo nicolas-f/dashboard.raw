@@ -25,7 +25,7 @@ function getStations(lmap, sensorsLayer) {
   }
 
 function getRouters(lmap, routersLayer) {
-    var params = {cache: false, url: "static/routers.json",dataType: "json", success: function( data ) {
+    var params = {cache: false, url: "generated/routers.json",dataType: "json", success: function( data ) {
       $.each( data, function( key, val ) {
         var lat = val.lat;
         var lon = val.long;

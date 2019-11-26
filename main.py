@@ -376,7 +376,11 @@ class PostNodeUp(Resource):
         # Update configuration file
         json_data = []
         updated = False
-        with open("static/routers.json", "r") as f_read:
+        config_path = "static/routers.json"
+        generated_path = "generated/routers.json"
+        if os.path.exists(generated_path):
+            config_path = generated_path
+        with open(config_path, "r") as f_read:
             json_data = json.load(f_read)
             for router in json_data:
                 if router["mac"].upper() == parsed_data["mac"].upper():
@@ -384,7 +388,7 @@ class PostNodeUp(Resource):
                         router[k] = parsed_data[k]
                     updated = True
         if updated:
-            with open("static/routers.json", "w") as f_write:
+            with open(generated_path, "w") as f_write:
                 f_write.write(json.dumps(json_data, indent=2))
         # return process id
         return jsonify(result='ok')
