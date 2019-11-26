@@ -435,6 +435,10 @@ def player():
 def custom_static(filename):
     return send_from_directory("generated", filename)
 
+# Custom static data
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory("cense", "favicon.ico")
 
 @app.route("/spectrogram")
 def status():
