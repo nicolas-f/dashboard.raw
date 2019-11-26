@@ -355,7 +355,7 @@ def parseRouterCall(data):
         elif ":" in row:
             mac_adress = re.findall(p, row)[0]
             router_infos["mac"] = mac_adress
-            router_infos["online"] = time.mktime(time.strptime(row.split(",")[1], "%b %d %Y %H:%M:%S"))
+            router_infos["online"] = time.time()
     router_infos["clients"] = list(router_infos["clients"])
     return router_infos
 
