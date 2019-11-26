@@ -25,7 +25,7 @@ function getStations(lmap, sensorsLayer) {
   }
 
 function getRouters(lmap, routersLayer) {
-    $.getJSON( "static/routers.json", function( data ) {
+    var params = {cache: false, url: "static/routers.json",dataType: "json", success: function( data ) {
       $.each( data, function( key, val ) {
         var lat = val.lat;
         var lon = val.long;
@@ -36,7 +36,8 @@ function getRouters(lmap, routersLayer) {
         var style = {data: val, title:"id: "+val.id+"\n4g id: "+val["4g_router_id"], icon: cabinetIcon};
         routersLayer.addLayer(L.marker([lat, lon], style));
       });
-    });
+    }};
+    $.ajax(params);
   }
 
 function getStationsRecordCount(lmap, sensorsLayer) {
