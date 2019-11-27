@@ -33,7 +33,11 @@ function getRouters(lmap, routersLayer) {
         if("online" in val && moment().subtract(25, 'hours').valueOf() / 1000 < val.online) {
             cabinetIcon = greenCabinetIcon;
         }
-        var style = {data: val, title:"id: "+val.id+"\n4g id: "+val["4g_router_id"], icon: cabinetIcon};
+        var title = "id: "+val.id+"\n4g id: "+val["4g_router_id"];
+        if("clients" in val) {
+            title+="\nclients: \n"+val["clients"].join("\n");
+        }
+        var style = {data: val, title:title, icon: cabinetIcon};
         routersLayer.addLayer(L.marker([lat, lon], style));
       });
     }};
