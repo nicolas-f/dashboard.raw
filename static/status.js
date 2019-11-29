@@ -30,10 +30,13 @@ function getRouters(lmap, routersLayer) {
         var lat = val.lat;
         var lon = val.long;
         var cabinetIcon = redCabinetIcon;
-        if("online" in val && moment().subtract(25, 'hours').valueOf() / 1000 < val.online) {
-            cabinetIcon = greenCabinetIcon;
+        var title = "id: "+val.id+"\n4g id: "+val["4g_router_id"]+"\nmac: "+val["mac"];
+        if("online" in val) {
+            title+= "\nonline: "+new Date(val.online * 1000).toISOString()
+            if(moment().subtract(25, 'hours').valueOf() / 1000 < val.online) {
+                cabinetIcon = greenCabinetIcon;
+            }
         }
-        var title = "id: "+val.id+"\n4g id: "+val["4g_router_id"];
         if("clients" in val) {
             title+="\nclients: \n"+val["clients"].join("\n");
         }
