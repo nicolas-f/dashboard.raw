@@ -797,7 +797,7 @@
     {
         "map_id_sensor": "p0560",
         "box_id_sensor": 81,
-        "mac": "B8:27:EB:42:3D:54",
+        "mac": "B8:27:EB:24:F6:27",
         "esid": "urn:osh:sensor:noisemonitoring:B8-27-EB-42-3D-54",
         "connected_radio_count": 1,
         "lorient1_id_sensor": "2598",
