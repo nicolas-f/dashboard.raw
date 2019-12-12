@@ -112,3 +112,5 @@ legend.onAdd = function (lmap) {
 };
 
 legend.addTo(lmap);
+
+L.control.locate().addTo(lmap);
