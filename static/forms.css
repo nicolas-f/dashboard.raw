@@ -105,6 +105,14 @@
 	border-radius: 3px;
 	color: #D2E2FF;
 }
+.form-style-7 input[type="button"]:disabled{
+	background: #333333;
+	border: none;
+	padding: 10px 20px 10px 20px;
+	border-bottom: 3px solid #5994FF;
+	border-radius: 3px;
+	color: #666666;
+}
 .form-style-7 input[type="submit"]:hover,
 .form-style-7 input[type="button"]:hover{
 	background: #6B9FFF;

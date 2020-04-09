@@ -150,7 +150,7 @@ class QuerySample(Resource):
 
         if resp.status_code != 200:
             # This means something went wrong.
-            raise Networkerror([resp.status_code])
+            raise Networkerror([resp.status_code, resp.content])
         return Response(resp.content, mimetype='application/json')
 
 
@@ -464,7 +464,7 @@ if __name__ == '__main__':
         from waitress import serve
 
         serve(app, port=config['SERVER']['PORT'])
-    except ImportError:
+    except [ImportError, ModuleNotFoundError]:
         if config['SERVER']['PROTOCOL'] == 'https':
             app.run(port=config['SERVER']['PORT'], ssl_context=('certs/cert.pem', 'certs/key.pem'))
         else:

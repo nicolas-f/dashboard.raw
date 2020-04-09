@@ -237,6 +237,12 @@ function decrypt_and_download(sample_id) {
     });
 }
 
+function download_all() {
+    downloadedData.forEach(function(el) {
+        decrypt_and_download(el["elementid"]);
+    });
+}
+
 function fetch() {
     var dateStart = $('input[name="datetimes"]').data('daterangepicker').startDate.valueOf();
     var dateEnd = $('input[name="datetimes"]').data('daterangepicker').endDate.valueOf();
@@ -249,12 +255,14 @@ function fetch() {
         jsonContent.hits.hits.forEach(function(element) {
             entry = {};
             entry["id"]="<a href=\"#\" onclick=\"decrypt_and_download('"+element["_id"]+"')\">Download</a>";
+            entry["elementid"] = element["_id"];
             var date = new Date(element["_source"]["timestamp"]);
             entry["timestamp"]=date.toLocaleDateString()+" "+date.toLocaleTimeString();
             entry["producerID"]=element["_source"]["producerID"];
             downloadedData.push(entry);
         });
         stations.render();
+        document.getElementById('download_all_button').disabled = false;
       },
       contentType : 'application/json',
     });
