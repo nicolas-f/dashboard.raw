@@ -464,7 +464,7 @@ if __name__ == '__main__':
         from waitress import serve
 
         serve(app, port=config['SERVER']['PORT'])
-    except [ImportError, ModuleNotFoundError]:
+    except ModuleNotFoundError:
         if config['SERVER']['PROTOCOL'] == 'https':
             app.run(port=config['SERVER']['PORT'], ssl_context=('certs/cert.pem', 'certs/key.pem'))
         else:
