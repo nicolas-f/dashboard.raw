@@ -460,12 +460,7 @@ class Networkerror(RuntimeError):
 
 
 if __name__ == '__main__':
-    try:
-        from waitress import serve
-
-        serve(app, port=config['SERVER']['PORT'])
-    except ModuleNotFoundError:
-        if config['SERVER']['PROTOCOL'] == 'https':
-            app.run(port=config['SERVER']['PORT'], ssl_context=('certs/cert.pem', 'certs/key.pem'))
-        else:
-            app.run(port=config['SERVER']['PORT'])
+    if config['SERVER']['PROTOCOL'] == 'https':
+        app.run(port=config['SERVER']['PORT'], ssl_context=('certs/cert.pem', 'certs/key.pem'))
+    else:
+        app.run(port=config['SERVER']['PORT'])
