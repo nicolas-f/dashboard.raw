@@ -946,9 +946,9 @@
     },
     {
         "map_id_sensor": "p0660",
-        "box_id_sensor": 50,
-        "mac": "B8:27:EB:45:F3:26",
-        "esid": "urn:osh:sensor:noisemonitoring:B8-27-EB-45-F3-26",
+        "box_id_sensor": 12,
+        "mac": "B8:27:EB:0F:4C:98",
+        "esid": "urn:osh:sensor:noisemonitoring:B8-27-EB-0F-4C-98",
         "connected_radio_count": 1,
         "lorient1_id_sensor": "2381",
         "lorient2_id_sensor": "1CHAZ 35",
