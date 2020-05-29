@@ -368,7 +368,7 @@ def parseRouterCall(router_data):
 # Produced from 4G Router script
 # /bin/echo "`/bin/cat /sys/class/net/eth0/address; /sbin/arp`" | /usr/bin/curl -X POST --header "Content-Type: text/html" -d @- --insecure https://localhost:4430/nodeup
 class PostNodeUp(Resource):
-    def post(self):
+    async def post(self):
         node_data = request.data.decode("utf-8").replace("?", "\n")
         with open("nodeup.log", "a+") as f:
             if 'X-Forwarded-For' in request.headers:
@@ -467,6 +467,10 @@ def favicon():
 def status():
     return render_template('spectrogram.html')
 
+# test, will be integrated into map
+@app.route("/uptime")
+def uptime():
+    return render_template('uptime.html')
 
 class Networkerror(RuntimeError):
     def __init__(self, arg):
