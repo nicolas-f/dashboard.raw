@@ -1,0 +1,35 @@
+{
+  "aggs": {
+    "daily": {
+      "date_histogram": {
+        "field": "timestamp",
+        "interval": "6h",
+        "format": "yyyy-MM-dd HH",
+        "min_doc_count": 1,
+        "order": {
+          "_key": "desc"
+        }
+      }
+    }
+  },
+  "size": 0,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "range": {
+            "timestamp": {
+              "gte": "now-1M/M",
+              "lt": "now/d"
+            }
+          }
+        },
+        {
+          "match": {
+            "producerID": "{{ sensor_id }}"
+          }
+        }
+      ]
+    }
+  }
+}
