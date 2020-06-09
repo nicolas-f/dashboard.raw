@@ -407,6 +407,23 @@ class PostNodeUp(Resource):
             # return process id
             return jsonify(result='ok')
 
+class QuerySensorUptime(Resource):
+    def get(self, sensor_id, start_time, end_time):
+        # uncomment if no server available for dev purpose
+        # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
+        #    return  Response(f.read(), mimetype='application/json')
+        post_data = render_template('query_sensor_uptime.json', sensor_id=sensor_id, start_time=int(start_time), end_time=end_time)
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search',
+                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
 
 api.add_resource(PostNodeUp, '/nodeup')
 

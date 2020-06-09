@@ -15,8 +15,8 @@
         {
           "range": {
             "timestamp": {
-              "gte": "now-1M/M",
-              "lt": "now/d"
+              "gte": {{ start_time }},
+              "lt": {{ end_time }}
             }
           }
         },

@@ -10,7 +10,7 @@ var margin = {
     cellHMargin = 2,
     headerMargin = 2,
     leftColumnMargin = 4,
-    width = (cellSize + cellHMargin) * 40 + margin.left + margin.right,
+    width = (cellSize + cellHMargin) * 31 + margin.left + margin.right,
     height = headerMargin + (cellSize + cellHMargin) * 4 + margin.top + margin.bottom,
     colors = ["#82A6AD", "#A0BABF", "#B8D6D1", "#CEE4CC", "#E2F2BF", "#F3C683", "#E87E4D", "#CD463E", "#A11A4D", "#75085C", "#430A4A"];
 
@@ -78,14 +78,21 @@ function loadSensor(jsonContent) {
             return headerMargin + d.column * (cellSize + cellHMargin);
         })
         .attr("class", "hour")
-        .attr("width", cellSize)
-        .attr("height", cellSize)
-        .style("fill", colors[0]).transition().duration(1000).style("fill", function(d) {
+        .attr("width", 0)
+        .attr("height", 0)
+        .style("fill", function(d) {
             return colorScale(d.value);
         })
 
+    rect.transition()
+    .duration(function(d, i) {
+            return i/4 * 20;
+        })
+    .attr("width", cellSize)
+    .attr("height", cellSize);
+
     rect.append("title").text(function(d) {
-        return d.date + "h: " + d.value * 10 + " seconds (" + Math.round(d.value / 2160.0 * 100.0) + " %)";
+        return d.date + "h: " + d.value * 10 + " seconds (" + (d.value / 2160.0 * 100.0).toFixed(1) + " %)";
     });
 
     svg.selectAll(".dayLabel").remove();
