@@ -1,4 +1,4 @@
- var margin = { top: 50, right: 0, bottom: 100, left: 80 },
+ var margin = { top: 50, right: 0, bottom: 100, left: 50 },
       fields = [12500,10000,8000,6300,5000,4000,3150,2500,2000,1600,1250,1000,800,630,500,400,315,250,200,160,125,100,80,63,50,40,31.5,25,20,'leq', 'laeq'];
       cellSize = 15,
       cellVMargin = 2,
@@ -24,14 +24,18 @@
       var recordCount = jsonContent.aggregations.daily.buckets.length;
       var sensorData = jsonContent.aggregations.daily.buckets;
       var data = [];
+      var days = [];
       var t, freqIndex;
       for(t=0; t<recordCount; t++) {
         var field_date =  jsonContent.aggregations.daily.buckets[t]["key_as_string"]; //"2020-04-01 00"
         [stat_all, stat_year, stat_month, stat_day, stat_hour] = field_date.match('([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+)');
         var field_epoch = jsonContent.aggregations.daily.buckets[t]["key"];
         var field_num_records = jsonContent.aggregations.daily.buckets[t]["doc_count"];
+        if(stat_hour == 0) {
+            days.push(stat_day+"-"+stat_month);
+        }
         data.push({
-            row: parseInt(stat_day, 10) - 1,
+            row: Math.floor(t / 4),
             column: parseInt(stat_hour, 10) / 6,
             date: field_date,
             value:  parseInt(field_num_records, 10)
@@ -66,6 +70,20 @@
           .style("fill", colors[0]).transition().duration(1000).style("fill", function(d) { return colorScale(d.value); })
 
       rect.append("title").text(function(d) { return d.date + "h: " + d.value * 10 + " seconds ("+ Math.round(d.value / 2160.0 * 100.0) +" %)"; });
+
+      svg.selectAll(".dayLabel").remove();
+
+      var dayLabels = svg.selectAll(".dayLabel")
+          .data(days)
+          .enter().append("text")
+            .text(function (d) { return d; })
+            .attr("x", 0)
+            .attr("y", function (d, i) { return cellHMargin + i * (cellSize + cellHMargin); })
+            .style("text-anchor", "end")
+            .attr("transform", "translate(-6," + cellSize / 1.5 + ")")
+            .attr("class", "dayLabel mono axis axis-workweek");
+
+
 //
 //      svg.selectAll(".legend").remove();
 //      var legend = svg.selectAll(".legend")

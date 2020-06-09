@@ -4,8 +4,7 @@
       "date_histogram": {
         "field": "timestamp",
         "interval": "6h",
-        "format": "yyyy-MM-dd HH",
-        "min_doc_count": 1
+        "format": "yyyy-MM-dd HH"
       }
     }
   },
