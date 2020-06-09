@@ -161,11 +161,11 @@ function loadSensor(jsonContent) {
 
 }
 
-var heatmapChart = function(sensorId) {
-    d3.json("static/testuptime.json").then(function(jsonContent) {
+var uptimeChart = function(sensorId, startTime, endTime) {
+    d3.json("/get-uptime/"+sensorId+"/"+startTime+"/"+endTime).then(function(jsonContent) {
         downloadedData = jsonContent;
         loadSensor(jsonContent);
     });
 };
 
-heatmapChart("");
+uptimeChart("urn:osh:sensor:noisemonitoring:B8-27-EB-A8-79-B3",1588291200000,1590948000000);

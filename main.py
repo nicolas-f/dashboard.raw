@@ -407,14 +407,14 @@ class PostNodeUp(Resource):
             # return process id
             return jsonify(result='ok')
 
+
 class QuerySensorUptime(Resource):
     def get(self, sensor_id, start_time, end_time):
         # uncomment if no server available for dev purpose
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
-        post_data = render_template('query_sensor_uptime.json', sensor_id=sensor_id, start_time=int(start_time), end_time=end_time)
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search',
-                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
+        post_data = render_template('query_sensor_uptime.json', sensor_id=sensor_id, start_time=int(start_time), end_time=int(end_time))
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
                                                 config['ELASTIC_SEARCH']['PASSWORD']),
                              headers={'content-type': 'application/json'},
@@ -444,6 +444,8 @@ api.add_resource(QueryTrigger, '/get-trigger')
 api.add_resource(QuerySampleList, '/list-samples/<int:start_time>/<int:end_time>')
 
 api.add_resource(QuerySample, '/get-samples/<string:sample_id>')
+
+api.add_resource(QuerySensorUptime, '/get-uptime/<string:sensor_id>/<int:start_time>/<int:end_time>')  # Route_3
 
 # a route where we will display a welcome message via an HTML template
 @app.route("/")

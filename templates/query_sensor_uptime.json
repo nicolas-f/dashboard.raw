@@ -16,7 +16,7 @@
           "range": {
             "timestamp": {
               "gte": {{ start_time }},
-              "lt": {{ end_time }}
+              "lte": {{ end_time }}
             }
           }
         },
