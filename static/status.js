@@ -11,12 +11,13 @@ function getStations(lmap, sensorsLayer) {
         var style = {data: val, title:"id: "+val.esid+"\nlocal ip: 192.168.1."+val.box_id_sensor+"\n4g id: "+val["4g_router_id"], icon: greyIcon};
         var marker = L.marker([lat, lon], style);
         marker.on('click', function(e) {
+           selectedSensor = e.target.options.data["esid"];
            if ( !$( ".uptimectrl" ).length ) {
-           console.log(e.latlng);
             upTimeControl.addTo(lmap);
             loadDateTime();
             buildUpTime();
            }
+           uptimeChart(selectedSensor, moment().utc().startOf('month'), moment().utc().endOf('month'));
         });
         sensorsLayer.addLayer(marker);
         minLat = Math.min(minLat, lat);

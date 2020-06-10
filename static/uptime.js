@@ -2,7 +2,7 @@ var margin = {
         top: 38,
         right: 0,
         bottom: 0,
-        left: 80
+        left: 65
     },
     cellSize = 25,
     cellVMargin = 2,
@@ -11,6 +11,8 @@ var margin = {
     leftColumnMargin = 4,
     width = (cellSize + cellHMargin) * 31 + margin.left + margin.right,
     height = headerMargin + (cellSize + cellHMargin) * 4 + margin.top + margin.bottom;
+var selectedSensor = "";
+
 function loadDateTime() {
      $('input[name="datetimes"]').daterangepicker({
           "singleDatePicker": false,
@@ -30,7 +32,7 @@ function loadDateTime() {
       }, function(start, end, label) {
         start.add(start.utcOffset(), 'm').valueOf();
         end.add(end.utcOffset(), 'm').valueOf();
-        uptimeChart("urn:osh:sensor:noisemonitoring:B8-27-EB-A8-79-B3", start.valueOf(), end.valueOf());
+        uptimeChart(selectedSensor, start.valueOf(), end.valueOf());
       });
 }
 
