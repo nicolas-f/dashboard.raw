@@ -414,6 +414,7 @@ class QuerySensorUptime(Resource):
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
         post_data = render_template('query_sensor_uptime.json', sensor_id=sensor_id, start_time=int(start_time), end_time=int(end_time))
+        print(post_data)
         resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
                              auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
                                                 config['ELASTIC_SEARCH']['PASSWORD']),
