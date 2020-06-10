@@ -12,12 +12,15 @@ function getStations(lmap, sensorsLayer) {
         var marker = L.marker([lat, lon], style);
         marker.on('click', function(e) {
            selectedSensor = e.target.options.data["esid"];
-           if ( !$( ".uptimectrl" ).length ) {
+           if ( $("#uptimectrl").length == 0 ) {
             upTimeControl.addTo(lmap);
             loadDateTime();
             buildUpTime();
            }
-           uptimeChart(selectedSensor, moment().utc().startOf('month'), moment().utc().endOf('month'));
+           var pickerCtrl = $('input[name="datetimes"]').data('daterangepicker');
+           var start = pickerCtrl.startDate.clone();
+           var end = pickerCtrl.endDate.clone();
+           uptimeChart(selectedSensor, start.add(start.utcOffset(), 'm').valueOf(), end.add(end.utcOffset(), 'm').valueOf());
         });
         sensorsLayer.addLayer(marker);
         minLat = Math.min(minLat, lat);

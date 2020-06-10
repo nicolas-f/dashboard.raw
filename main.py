@@ -486,11 +486,6 @@ def favicon():
 def status():
     return render_template('spectrogram.html')
 
-# test, will be integrated into map
-@app.route("/uptime")
-def uptime():
-    return render_template('uptime.html')
-
 class Networkerror(RuntimeError):
     def __init__(self, arg):
         self.args = arg
