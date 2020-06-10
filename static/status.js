@@ -9,7 +9,16 @@ function getStations(lmap, sensorsLayer) {
         var lat = val.lat;
         var lon = val.long;
         var style = {data: val, title:"id: "+val.esid+"\nlocal ip: 192.168.1."+val.box_id_sensor+"\n4g id: "+val["4g_router_id"], icon: greyIcon};
-        sensorsLayer.addLayer(L.marker([lat, lon], style));
+        var marker = L.marker([lat, lon], style);
+        marker.on('click', function(e) {
+           if ( !$( ".uptimectrl" ).length ) {
+           console.log(e.latlng);
+            upTimeControl.addTo(lmap);
+            loadDateTime();
+            buildUpTime();
+           }
+        });
+        sensorsLayer.addLayer(marker);
         minLat = Math.min(minLat, lat);
         minLong = Math.min(minLong, lon);
         maxLat = Math.max(maxLat, lat);
@@ -113,4 +122,15 @@ legend.onAdd = function (lmap) {
 
 legend.addTo(lmap);
 
-L.control.locate().addTo(lmap);
+
+var upTimeControl = L.control({position: 'bottomcenter', });
+
+
+upTimeControl.onAdd = function (lmap) {
+    var div = L.DomUtil.create('div', 'info uptime');
+    div.id = "uptimectrl";
+    div.innerHTML += "<div class=\"form-style-7\"> <input type=\"text\" name=\"datetimes\"/> </div> <div id=\"chart\"></div>";
+    return div;
+};
+
+//

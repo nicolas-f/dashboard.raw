@@ -1,7 +1,7 @@
 var margin = {
-        top: 50,
+        top: 38,
         right: 0,
-        bottom: 100,
+        bottom: 0,
         left: 80
     },
     cellSize = 25,
@@ -15,6 +15,7 @@ function loadDateTime() {
      $('input[name="datetimes"]').daterangepicker({
           "singleDatePicker": false,
           "showISOWeekNumbers": true,
+          "drops":"up",
           "maxSpan": {
                "month": 1
           },
@@ -24,47 +25,17 @@ function loadDateTime() {
               'This Month': [moment().startOf('month'), moment().endOf('month')],
               'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
           },
-          "locale": {
-              "format": "MM/DD/YYYY",
-              "separator": " - ",
-              "applyLabel": "Apply",
-              "cancelLabel": "Cancel",
-              "fromLabel": "From",
-              "toLabel": "To",
-              "customRangeLabel": "Custom",
-              "weekLabel": "W",
-              "monthNames": [
-                  "January",
-                  "February",
-                  "March",
-                  "April",
-                  "May",
-                  "June",
-                  "July",
-                  "August",
-                  "September",
-                  "October",
-                  "November",
-                  "December"
-              ],
-              "firstDay": 1
-          },
           "startDate": moment().startOf('month'),
           "endDate": moment().endOf('month')
       }, function(start, end, label) {
-        uptimeChart("urn:osh:sensor:noisemonitoring:B8-27-EB-A8-79-B3", moment.utc(start.toString()).utc().valueOf(), moment.utc(end.toString()).utc().valueOf());
+        start.add(start.utcOffset(), 'm').valueOf();
+        end.add(end.utcOffset(), 'm').valueOf();
+        uptimeChart("urn:osh:sensor:noisemonitoring:B8-27-EB-A8-79-B3", start.valueOf(), end.valueOf());
       });
 }
 
-const svg = d3.select("#chart").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+function loadSensor(svg, jsonContent) {
 
-var downloadedData = {};
-
-function loadSensor(jsonContent) {
     svg.selectAll(".hour").remove();
     if (typeof jsonContent.aggregations == 'undefined') {
         throw "Wrong Json conent " + jsonContent;
@@ -172,12 +143,19 @@ function loadSensor(jsonContent) {
 }
 
 var uptimeChart = function(sensorId, startTime, endTime) {
+    var svg = d3.select("g");
     svg.selectAll(".hour").remove();
     d3.json("/get-uptime/"+sensorId+"/"+startTime+"/"+endTime).then(function(jsonContent) {
-        downloadedData = jsonContent;
-        loadSensor(jsonContent);
+        loadSensor(svg, jsonContent);
     });
 };
 
-uptimeChart("urn:osh:sensor:noisemonitoring:B8-27-EB-A8-79-B3",moment().utc().startOf('month'),moment().utc().endOf('month'));
-loadDateTime();
+var buildUpTime = function() {
+    d3.select("#chart").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+}
+// uptimeChart("urn:osh:sensor:noisemonitoring:B8-27-EB-A8-79-B3",moment().utc().startOf('month'),moment().utc().endOf('month'));
+// loadDateTime();
