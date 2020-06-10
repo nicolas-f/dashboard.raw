@@ -425,6 +425,21 @@ class QuerySensorUptime(Resource):
             raise Networkerror([resp.status_code])
         return Response(resp.content, mimetype='application/json')
 
+
+class QuerySensorLastRecord(Resource):
+    def get(self, sensor_id):
+        post_data = render_template('query_last_record.json', sensor_id=sensor_id)
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
+
 api.add_resource(PostNodeUp, '/nodeup')
 
 api.add_resource(QuerySensorList, '/sensors')
@@ -446,6 +461,8 @@ api.add_resource(QuerySampleList, '/list-samples/<int:start_time>/<int:end_time>
 api.add_resource(QuerySample, '/get-samples/<string:sample_id>')
 
 api.add_resource(QuerySensorUptime, '/get-uptime/<string:sensor_id>/<int:start_time>/<int:end_time>')  # Route_3
+
+api.add_resource(QuerySensorLastRecord, '/get-last-record/<string:sensor_id>')
 
 # a route where we will display a welcome message via an HTML template
 @app.route("/")

@@ -1,4 +1,29 @@
 
+function onMarkerClick(e) {
+    selectedSensor = e.target.options.data["esid"];
+    // Fetch the last sensor record
+    $.getJSON( "/get-last-record/" + selectedSensor, function( data ) {
+       if ( $("#uptimectrl").length == 0 ) {
+        upTimeControl.addTo(lmap);
+        loadDateTime();
+        buildUpTime();
+       }
+       var pickerCtrl = $('input[name="datetimes"]').data('daterangepicker');
+       var start = pickerCtrl.startDate.clone();
+       var end = pickerCtrl.endDate.clone();
+       start = start.add(start.utcOffset(), 'm').valueOf();
+       end = end.add(end.utcOffset(), 'm').valueOf();
+       var sensorEpoch = data["hits"]["hits"][0]["_source"]["timestamp"];
+       if(start > sensorEpoch) {
+            start = moment(sensorEpoch).utc().startOf('month').valueOf();
+            end = moment(sensorEpoch).utc().endOf('month').valueOf();
+            pickerCtrl.setStartDate(moment(start));
+            pickerCtrl.setEndDate(moment(end));
+       }
+       uptimeChart(selectedSensor, start, end);
+   });
+}
+
 function getStations(lmap, sensorsLayer) {
     $.getJSON( "static/network.json", function( data ) {
       var minLat = 90;
@@ -10,18 +35,7 @@ function getStations(lmap, sensorsLayer) {
         var lon = val.long;
         var style = {data: val, title:"id: "+val.esid+"\nlocal ip: 192.168.1."+val.box_id_sensor+"\n4g id: "+val["4g_router_id"], icon: greyIcon};
         var marker = L.marker([lat, lon], style);
-        marker.on('click', function(e) {
-           selectedSensor = e.target.options.data["esid"];
-           if ( $("#uptimectrl").length == 0 ) {
-            upTimeControl.addTo(lmap);
-            loadDateTime();
-            buildUpTime();
-           }
-           var pickerCtrl = $('input[name="datetimes"]').data('daterangepicker');
-           var start = pickerCtrl.startDate.clone();
-           var end = pickerCtrl.endDate.clone();
-           uptimeChart(selectedSensor, start.add(start.utcOffset(), 'm').valueOf(), end.add(end.utcOffset(), 'm').valueOf());
-        });
+        marker.on('click', onMarkerClick);
         sensorsLayer.addLayer(marker);
         minLat = Math.min(minLat, lat);
         minLong = Math.min(minLong, lon);
