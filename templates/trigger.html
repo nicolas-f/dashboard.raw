@@ -65,6 +65,8 @@
         </li>
         <li>
             <label for="spectrum-frame">Spectrum template</label>
+            <input type="button" value="Add Template" onclick="add_template()">
+            <input type="button" value="Remove Template" onclick="remove_template()">
             <div id="spectrum-frame">
                 <div id="spectrum" class="hot handsontable htColumnHeaders"></div>
             </div>
@@ -123,12 +125,13 @@
     var results = new Handsontable(document.getElementById('spectrum'), {
     data:resultsTable,
     colHeaders: fields,
-    minSpareRows: 0,
     minSpareCols: 0,
     colWidths: 45,
     rowHeaderWidth: 80,
     columns: colOpts,
-    rowHeaders: ['Spectrum', 'Weight'],
+    rowHeaders: function(index) {
+      return ['Spectrum', 'Weight'][index % 2];
+    },
     afterGetColHeader: function(i, TH) {
       TH.innerHTML = '<div class="head">' + TH.innerHTML + '</div>'
     }

@@ -267,6 +267,20 @@ function fetch() {
       contentType : 'application/json',
     });
 }
+function add_template() {
+    var col = results.countRows();
+    results.alter('insert_row', col, 2);
+    resultsTable[resultsTable.length - 1] = new Array(fields.length).fill(1.0);
+    results.render();
+}
+
+function remove_template() {
+    var col = results.countRows();
+    if(col > 2) {
+        results.alter('remove_row', results.countRows() - 1);
+        results.alter('remove_row', results.countRows() - 1);
+    }
+}
 
 function configure() {
     var dateStart = $('input[name="datetimes"]').data('daterangepicker').startDate.valueOf();
@@ -274,13 +288,22 @@ function configure() {
 
     var startHour = $('input[name="startHour"]')[0].value;
     var endHour = $('input[name="endHour"]')[0].value;
+    // Extract spectrums and weigth arrays
+    spectrum_arrays = [];
+    weight_arrays = [];
+    for(var i=0; i < resultsTable.length; i+=2) {
+        spectrum_arrays.push(resultsTable[i]);
+    }
+    for(var i=1; i < resultsTable.length; i+=2) {
+        weight_arrays.push(resultsTable[i]);
+    }
 
     // generate json to post
     var jsonQuery = {
         date_start : dateStart,
         date_end : dateEnd,
-        spectrum : resultsTable[0],
-        weight : resultsTable[1],
+        spectrum : spectrum_arrays,
+        weight : weight_arrays,
         cosine : parseFloat($('input[name="cos_threshold"]')[0].value),
         min_leq : parseFloat($('input[name="minleq"]')[0].value),
         cached_length : parseInt($('input[name="minlength"]')[0].value),
@@ -315,7 +338,7 @@ function configure() {
           success: function(val) {
             if(val["result"] != 'success') {
                 el.style.visibility = "visible";
-                el.innerHTML = "Invalid public encryption key";
+                el.innerHTML = "Invalid public encryption key. Reason :" + val["result"];
                 el2.style.visibility = "hidden";
             } else{
                 el.style.visibility = "hidden";
