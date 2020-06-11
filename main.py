@@ -1,3 +1,6 @@
+import asyncio
+from json import JSONDecodeError
+
 from flask import Flask, render_template, Response, send_from_directory, request, jsonify
 from flask_restful import Resource, Api, reqparse
 import requests
@@ -17,6 +20,8 @@ api = Api(app)
 
 config = configparser.ConfigParser()
 data = {}
+sem = asyncio.Semaphore()
+
 if os.path.exists("trigger.json"):
     with open("trigger.json") as f:
         data["trigger"] = json.loads(f.read())
@@ -345,27 +350,26 @@ class PostTriggerData(Resource):
         # return process id
         return jsonify(result='Provided public key is not authorized')
 
-def parseRouterCall(data):
+
+def parseRouterCall(router_data):
     router_infos = {"clients": set()}
     p = re.compile(r'([0-9a-f]{2}(?::[0-9a-f]{2}){5})', re.IGNORECASE)
-    for row in data.split("\n"):
+    for row in router_data.split("\n"):
         if "ether" in row:
-            mac_adress = re.findall(p, row)[0]
-            router_infos["clients"].add(mac_adress)
+            mac_address = re.findall(p, row)[0]
+            router_infos["clients"].add(mac_address)
         elif ":" in row:
-            mac_adress = re.findall(p, row)[0]
-            router_infos["mac"] = mac_adress
+            mac_address = re.findall(p, row)[0]
+            router_infos["mac"] = mac_address
             router_infos["online"] = time.time()
     router_infos["clients"] = list(router_infos["clients"])
     return router_infos
 
-
 # Produced from 4G Router script
 # /bin/echo "`/bin/cat /sys/class/net/eth0/address; /sbin/arp`" | /usr/bin/curl -X POST --header "Content-Type: text/html" -d @- --insecure https://localhost:4430/nodeup
 class PostNodeUp(Resource):
-    def post(self):
+    async def post(self):
         node_data = request.data.decode("utf-8").replace("?", "\n")
-        parsed_data = parseRouterCall(node_data)
         with open("nodeup.log", "a+") as f:
             if 'X-Forwarded-For' in request.headers:
                 f.write(request.headers.get('X-Forwarded-For'))
@@ -374,25 +378,67 @@ class PostNodeUp(Resource):
             f.write(",")
             f.write(node_data+"\n")
         # Update configuration file
-        json_data = []
-        updated = False
-        config_path = "static/routers.json"
-        generated_path = "generated/routers.json"
-        if os.path.exists(generated_path):
-            config_path = generated_path
-        with open(config_path, "r") as f_read:
-            json_data = json.load(f_read)
+        # do not process router file in parallel
+        async with sem:
+            json_data = []
+            parsed_data = parseRouterCall(node_data)
+            updated = False
+            static_path = "static/routers.json"
+            generated_path = "generated/routers.json"
+            if os.path.exists(generated_path):
+                config_path = generated_path
+            else:
+                config_path = static_path
+            try:
+                with open(config_path, "r") as f_read:
+                    json_data = json.load(f_read)
+            except JSONDecodeError as e:
+                # issue when reading generated file, restart from static file
+                with open(static_path, "r") as f_read:
+                    json_data = json.load(f_read)
             for router in json_data:
                 if router["mac"].upper() == parsed_data["mac"].upper():
                     for k in parsed_data:
                         router[k] = parsed_data[k]
                     updated = True
-        if updated:
-            with open(generated_path, "w") as f_write:
-                f_write.write(json.dumps(json_data, indent=2))
-        # return process id
-        return jsonify(result='ok')
+            if updated:
+                with open(generated_path, "w") as f_write:
+                    f_write.write(json.dumps(json_data, indent=2))
+            # return process id
+            return jsonify(result='ok')
 
+
+class QuerySensorUptime(Resource):
+    def get(self, sensor_id, start_time, end_time):
+        # uncomment if no server available for dev purpose
+        # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
+        #    return  Response(f.read(), mimetype='application/json')
+        post_data = render_template('query_sensor_uptime.json', sensor_id=sensor_id, start_time=int(start_time), end_time=int(end_time))
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
+
+
+class QuerySensorLastRecord(Resource):
+    def get(self, sensor_id):
+        post_data = render_template('query_last_record.json', sensor_id=sensor_id)
+        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
+                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                config['ELASTIC_SEARCH']['PASSWORD']),
+                             headers={'content-type': 'application/json'},
+                             data=post_data)
+
+        if resp.status_code != 200:
+            # This means something went wrong.
+            raise Networkerror([resp.status_code])
+        return Response(resp.content, mimetype='application/json')
 
 api.add_resource(PostNodeUp, '/nodeup')
 
@@ -413,6 +459,10 @@ api.add_resource(QueryTrigger, '/get-trigger')
 api.add_resource(QuerySampleList, '/list-samples/<int:start_time>/<int:end_time>')
 
 api.add_resource(QuerySample, '/get-samples/<string:sample_id>')
+
+api.add_resource(QuerySensorUptime, '/get-uptime/<string:sensor_id>/<int:start_time>/<int:end_time>')  # Route_3
+
+api.add_resource(QuerySensorLastRecord, '/get-last-record/<string:sensor_id>')
 
 # a route where we will display a welcome message via an HTML template
 @app.route("/")
@@ -452,7 +502,6 @@ def favicon():
 @app.route("/spectrogram")
 def status():
     return render_template('spectrogram.html')
-
 
 class Networkerror(RuntimeError):
     def __init__(self, arg):

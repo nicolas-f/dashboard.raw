@@ -1,0 +1,31 @@
+{
+  "aggs": {
+    "daily": {
+      "date_histogram": {
+        "field": "timestamp",
+        "interval": "6h",
+        "format": "yyyy-MM-dd HH"
+      }
+    }
+  },
+  "size": 0,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "range": {
+            "timestamp": {
+              "gte": {{ start_time }},
+              "lte": {{ end_time }}
+            }
+          }
+        },
+        {
+          "match": {
+            "producerID": "{{ sensor_id }}"
+          }
+        }
+      ]
+    }
+  }
+}
