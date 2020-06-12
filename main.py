@@ -53,15 +53,16 @@ def query_elastic_search(query_path, post_data):
                                  data=post_data,
                                  timeout=5.0)
 
-            if resp.status_code != 200:
-                # This means something went wrong.
-                raise Networkerror([resp.status_code])
-            return resp.content
-        except requests.exceptions.RequestException as e:
-            if len(urls) > 0:
-                try_url = urls.pop(0)
+            if resp.status_code == 200:
+                return resp.content
             else:
-                raise e
+                # This means something went wrong.
+                print(Networkerror([resp.status_code]))
+        except requests.exceptions.RequestException as e:
+            print(e)  # ignore
+        if len(urls) == 0:
+            raise e
+        try_url = urls.pop(0)
 
 
 class QueryFullFast(Resource):
