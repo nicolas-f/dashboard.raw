@@ -14,6 +14,7 @@ import datetime
 import gzip
 import base64
 import re
+import random
 
 app = Flask(__name__)
 api = Api(app)
@@ -38,23 +39,38 @@ else:
 
 parser = reqparse.RequestParser()
 
+
+def query_elastic_search(query_path, post_data):
+    urls = [u.strip() for u in config['ELASTIC_SEARCH']['URL'].split(" ")]
+    random.shuffle(urls)
+    try_url = urls.pop(0)
+    while True:
+        try:
+            resp = requests.post(try_url + query_path,
+                                 auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
+                                                    config['ELASTIC_SEARCH']['PASSWORD']),
+                                 headers={'content-type': 'application/json'},
+                                 data=post_data,
+                                 timeout=5.0)
+
+            if resp.status_code != 200:
+                # This means something went wrong.
+                raise Networkerror([resp.status_code])
+            return resp.content
+        except requests.exceptions.RequestException as e:
+            if len(urls) > 0:
+                try_url = urls.pop(0)
+            else:
+                raise e
+
+
 class QueryFullFast(Resource):
     def get(self, start_time):
         # uncomment if no server available for dev purpose
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
         post_data = render_template('query.json', start_time=int(start_time), end_time=int(start_time) + 10e3)
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search',
-                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-
-        if resp.status_code != 200:
-            # This means something went wrong.
-            raise Networkerror([resp.status_code])
-        return Response(resp.content, mimetype='application/json')
+        return Response(query_elastic_search('/osh_data_acoustic_fast/_search', post_data), mimetype='application/json')
 
 
 process = {}
@@ -63,34 +79,13 @@ process = {}
 class QuerySensorList(Resource):
     def get(self):
         post_data = render_template('query_sensor_list.json')
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_sensorlocation/_search',
-                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-
-        if resp.status_code != 200:
-            # This means something went wrong.
-            raise Networkerror([resp.status_code])
-        return Response(resp.content, mimetype='application/json')
-
+        return Response(query_elastic_search('/osh_data_sensorlocation/_search', post_data), mimetype='application/json')
 
 
 class QuerySensorRecordCount(Resource):
     def get(self, start_time, end_time):
         post_data = render_template('query_sensor_record_count.json', start_time=int(start_time), end_time=int(end_time))
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
-                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-
-        if resp.status_code != 200:
-            # This means something went wrong.
-            raise Networkerror([resp.status_code])
-        return Response(resp.content, mimetype='application/json')
+        return Response(query_elastic_search('/osh_data_acoustic_slow/_search', post_data), mimetype='application/json')
 
 
 class QueryGenerateData(Resource):
@@ -127,17 +122,7 @@ class QuerySampleList(Resource):
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
         post_data = render_template('trigger_list.json', start_time=int(start_time), end_time=int(end_time))
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_samples/_search',
-                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-
-        if resp.status_code != 200:
-            # This means something went wrong.
-            raise Networkerror([resp.status_code])
-        return Response(resp.content, mimetype='application/json')
+        return Response(query_elastic_search('/osh_data_acoustic_samples/_search', post_data), mimetype='application/json')
 
 
 class QuerySample(Resource):
@@ -146,17 +131,7 @@ class QuerySample(Resource):
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
         post_data = render_template('fetch_samples.json', sample_id=base64.b64decode(sample_id).decode("utf-8"))
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_samples/_search',
-                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-
-        if resp.status_code != 200:
-            # This means something went wrong.
-            raise Networkerror([resp.status_code, resp.content])
-        return Response(resp.content, mimetype='application/json')
+        return Response(query_elastic_search('/osh_data_acoustic_samples/_search', post_data), mimetype='application/json')
 
 
 class Generate(Process):
@@ -261,17 +236,8 @@ class Generate(Process):
                             }
                         }
                     })
-                resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_fast/_search?scroll=1m',
-                                     # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
-                                     auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                        config['ELASTIC_SEARCH']['PASSWORD']),
-                                     headers={'content-type': 'application/json'},
-                                     data=json.dumps(query))
-
-                if resp.status_code != 200:
-                    # This means something went wrong.
-                    raise Networkerror([resp.status_code])
-                result = json.loads(resp.content.decode('utf-8'))
+                result = json.loads(query_elastic_search('/osh_data_acoustic_fast/_search?scroll=1m', post_data)
+                                    .decode('utf-8'))
 
                 # iterate with scroll api
                 scroll_id = result["_scroll_id"]
@@ -317,18 +283,10 @@ class Generate(Process):
                             epoch += 125
                     # fetch another batch
                     post_data = render_template('scroll.json', scroll_id=scroll_id)
-                    resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/_search/scroll',
-                             # verify=os.path.join(app.root_path, 'certs', 'transport-ca.pem'),
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-                    if resp.status_code != 200:
-                        # This means something went wrong.
-                        raise Networkerror([resp.status_code])
+                    result = json.loads(query_elastic_search('/_search/scroll', post_data)
+                                        .decode('utf-8'))
                     if (time.time() - self.start_time) > timeout:
                         raise(TimeoutError())
-                    result = json.loads(resp.content.decode('utf-8'))
                     hits = result["hits"]["hits"]
 
 
@@ -414,31 +372,13 @@ class QuerySensorUptime(Resource):
         # with open(os.path.join(app.root_path, "fast.json"), "r") as f:
         #    return  Response(f.read(), mimetype='application/json')
         post_data = render_template('query_sensor_uptime.json', sensor_id=sensor_id, start_time=int(start_time), end_time=int(end_time))
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-
-        if resp.status_code != 200:
-            # This means something went wrong.
-            raise Networkerror([resp.status_code])
-        return Response(resp.content, mimetype='application/json')
+        return Response(query_elastic_search('/osh_data_acoustic_slow/_search', post_data), mimetype='application/json')
 
 
 class QuerySensorLastRecord(Resource):
     def get(self, sensor_id):
         post_data = render_template('query_last_record.json', sensor_id=sensor_id)
-        resp = requests.post(config['ELASTIC_SEARCH']['URL'] + '/osh_data_acoustic_slow/_search',
-                             auth=HTTPBasicAuth(config['ELASTIC_SEARCH']['USER'],
-                                                config['ELASTIC_SEARCH']['PASSWORD']),
-                             headers={'content-type': 'application/json'},
-                             data=post_data)
-
-        if resp.status_code != 200:
-            # This means something went wrong.
-            raise Networkerror([resp.status_code])
-        return Response(resp.content, mimetype='application/json')
+        return Response(query_elastic_search('/osh_data_acoustic_slow/_search', post_data), mimetype='application/json')
 
 api.add_resource(PostNodeUp, '/nodeup')
 
