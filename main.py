@@ -1,7 +1,7 @@
 import asyncio
 from json import JSONDecodeError
 
-from flask import Flask, render_template, Response, send_from_directory, request, jsonify
+from flask import Flask, render_template, Response, send_from_directory, request, jsonify, make_response
 from flask_restful import Resource, Api, reqparse
 import requests
 from requests.auth import HTTPBasicAuth
@@ -364,7 +364,7 @@ class PostNodeUp(Resource):
                 with open(generated_path, "w") as f_write:
                     f_write.write(json.dumps(json_data, indent=2))
             # return process id
-            return jsonify(result='ok')
+            return make_response(jsonify(result='ok'), 200)
 
 
 class QuerySensorUptime(Resource):
