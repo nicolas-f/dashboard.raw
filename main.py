@@ -1,4 +1,3 @@
-import asyncio
 from json import JSONDecodeError
 
 from flask import Flask, render_template, Response, send_from_directory, request, jsonify, make_response
@@ -21,7 +20,6 @@ api = Api(app)
 
 config = configparser.ConfigParser()
 data = {}
-sem = asyncio.Semaphore()
 
 if os.path.exists("trigger.json"):
     with open("trigger.json") as f:
@@ -327,7 +325,7 @@ def parseRouterCall(router_data):
 # Produced from 4G Router script
 # /bin/echo "`/bin/cat /sys/class/net/eth0/address; /sbin/arp`" | /usr/bin/curl -X POST --header "Content-Type: text/html" -d @- --insecure https://localhost:4430/nodeup
 class PostNodeUp(Resource):
-    async def post(self):
+    def post(self):
         node_data = request.data.decode("utf-8").replace("?", "\n")
         with open("nodeup.log", "a+") as f:
             if 'X-Forwarded-For' in request.headers:
@@ -337,34 +335,34 @@ class PostNodeUp(Resource):
             f.write(",")
             f.write(node_data+"\n")
         # Update configuration file
-        # do not process router file in parallel
-        async with sem:
-            json_data = []
-            parsed_data = parseRouterCall(node_data)
-            updated = False
-            static_path = "static/routers.json"
-            generated_path = "generated/routers.json"
-            if os.path.exists(generated_path):
-                config_path = generated_path
-            else:
-                config_path = static_path
-            try:
-                with open(config_path, "r") as f_read:
-                    json_data = json.load(f_read)
-            except JSONDecodeError as e:
-                # issue when reading generated file, restart from static file
-                with open(static_path, "r") as f_read:
-                    json_data = json.load(f_read)
-            for router in json_data:
-                if router["mac"].upper() == parsed_data["mac"].upper():
-                    for k in parsed_data:
-                        router[k] = parsed_data[k]
-                    updated = True
-            if updated:
-                with open(generated_path, "w") as f_write:
-                    f_write.write(json.dumps(json_data, indent=2))
-            # return process id
-            return make_response(jsonify(result='ok'), 200)
+        json_data = []
+        parsed_data = parseRouterCall(node_data)
+        updated = False
+        static_path = "static/routers.json"
+        generated_path = "generated/routers.json"
+        if os.path.exists(generated_path):
+            config_path = generated_path
+        else:
+            config_path = static_path
+        try:
+            with open(config_path, "r") as f_read:
+                json_data = json.load(f_read)
+        except JSONDecodeError as e:
+            # issue when reading generated file, restart from static file
+            with open(static_path, "r") as f_read:
+                json_data = json.load(f_read)
+        for router in json_data:
+            if router["mac"].upper() == parsed_data["mac"].upper():
+                for k in parsed_data:
+                    router[k] = parsed_data[k]
+                updated = True
+        if updated:
+            with open(generated_path+".tmp", "w") as f_write:
+                f_write.write(json.dumps(json_data, indent=2))
+            # if its ok overwrite old file
+            os.rename(generated_path+".tmp", generated_path)
+        # return process id
+        return make_response(jsonify(result='ok'), 200)
 
 
 class QuerySensorUptime(Resource):
