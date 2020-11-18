@@ -235,7 +235,7 @@ class Generate(Process):
                             }
                         }
                     })
-                result = json.loads(query_elastic_search('/osh_data_acoustic_fast/_search?scroll=1m', post_data)
+                result = json.loads(query_elastic_search('/osh_data_acoustic_fast/_search?scroll=1m', json.dumps(query))
                                     .decode('utf-8'))
 
                 # iterate with scroll api
