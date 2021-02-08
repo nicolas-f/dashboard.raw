@@ -14,12 +14,11 @@ function onMarkerClick(e) {
        start = start.add(start.utcOffset(), 'm').valueOf();
        end = end.add(end.utcOffset(), 'm').valueOf();
        var sensorEpoch = data["hits"]["hits"][0]["_source"]["timestamp"];
-       if(start > sensorEpoch) {
-            start = moment(sensorEpoch).utc().startOf('month').valueOf();
-            end = moment(sensorEpoch).utc().endOf('month').valueOf();
-            pickerCtrl.setStartDate(moment(start));
-            pickerCtrl.setEndDate(moment(end));
-       }
+       // Always display the last month of selected sensor data
+       start = moment(sensorEpoch).utc().startOf('month').valueOf();
+       end = moment(sensorEpoch).utc().endOf('month').valueOf();
+       pickerCtrl.setStartDate(moment(start));
+       pickerCtrl.setEndDate(moment(end));
        uptimeChart(selectedSensor, start, end);
    });
 }
