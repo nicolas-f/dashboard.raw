@@ -15,6 +15,40 @@ var selectedSensor = "";
 
 function loadDateTime() {
      $('input[name="datetimes"]').daterangepicker({
+             "locale": {
+                "format": "DD/MM/YYYY",
+                "separator": " - ",
+                "applyLabel": "Apply",
+                "cancelLabel": "Cancel",
+                "fromLabel": "From",
+                "toLabel": "To",
+                "customRangeLabel": "Custom",
+                "weekLabel": "W",
+                "daysOfWeek": [
+                    "Su",
+                    "Mo",
+                    "Tu",
+                    "We",
+                    "Th",
+                    "Fr",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ],
+                "firstDay": 1
+            },
           "singleDatePicker": false,
           "showISOWeekNumbers": true,
           "drops":"up",
@@ -61,7 +95,7 @@ function loadSensor(svg, jsonContent) {
         data.push({
             column: column,
             row: parseInt(stat_hour, 10) / 6,
-            date: field_date,
+            date: stat_day + "/" + stat_month + "/" + stat_year + " " + stat_hour,
             value: parseInt(field_num_records, 10)
         });
     }
